@@ -15,20 +15,22 @@ class WebhookService(BaseService):
 
     @check_required(['options'])
     def init(self, params):
-        """ init plugin by options
-                """
+        """
+
+            init plugin by options
+
+        """
         return {'metadata': {}}
 
     @transaction
-    @check_required(['options', 'secret_data'])
+    @check_required(['options'])
     def verify(self, params):
         """
         Args:
-              params:
-                - options
-                - secret_data
+          params:
+            - options
+
         """
         options = params['options']
-        secret_data = params.get('secret_data', {})
 
         return {}
