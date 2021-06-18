@@ -17,7 +17,6 @@ class EventService(BaseService):
     @transaction
     @check_required(['options', 'data'])
     def parse(self, params):
-
         """
 
         Args:
