@@ -1,5 +1,5 @@
 from schematics.models import Model
-from schematics.types import DictType, StringType, ModelType
+from schematics.types import DictType, StringType, ModelType, DateTimeType
 
 __all__ = ['EventModel']
 
@@ -19,4 +19,5 @@ class EventModel(Model):
     severity = StringType(choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'NOT_AVAILABLE'], default='INFO')
     resource = ModelType(ResourceModel)
     rule = StringType(default='')
-    tags = DictType(StringType(), default={})
+    occurred_at = DateTimeType()
+    additional_info = DictType(StringType(), default={})
