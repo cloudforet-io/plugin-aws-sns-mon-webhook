@@ -41,7 +41,7 @@ class TestEvent(TestCase):
             "StateChangeTime": "2021-06-10T04:28:46.868+0000"
             }
 
-        parsed_data = self.monitoring.Event.parse({'options': options, 'raw_data': raw_data})
+        parsed_data = self.monitoring.Event.parse({'options': options, 'data': raw_data})
         print_json(parsed_data)
 
 

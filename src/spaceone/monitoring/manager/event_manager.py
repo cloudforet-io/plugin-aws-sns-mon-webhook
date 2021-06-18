@@ -2,8 +2,6 @@ import logging
 import requests
 import hashlib
 from datetime import datetime
-from spaceone.core import utils
-from spaceone.monitoring.error.event import *
 from spaceone.core.manager import BaseManager
 from spaceone.monitoring.model.event_response_model import EventModel
 
@@ -29,39 +27,38 @@ class EventManager(BaseManager):
         else:
 
             # INSUFFICIENT_DATA, ALARM, OK
-
             """
             {
-            "OldStateValue": "ALARM",
-            "Trigger": {
-                "StatisticType": "Statistic",
-                "EvaluationPeriods": 1,
-                "Period": 300,
-                "MetricName": "CPUUtilization",
-                "Namespace": "AWS/EC2",
-                "TreatMissingData": "- TreatMissingData:                    missing",
-                "Statistic": "MAXIMUM",
-                "Unit": "None",
-                "EvaluateLowSampleCountPercentile": "",
-                "Dimensions": [
-                    {
-                        "value": "i-0b79aaf581d5389d5",
-                        "name": "InstanceId"
-                    }
-                ],
-                "ComparisonOperator": "GreaterThanThreshold",
-                "Threshold": 50.0
-            },
-            "AlarmName": "cpu corek8s ",
-            "Region": "AsiaPacific (Seoul)",
-            "AWSAccountId": "257706363616",
-            "NewStateValue": "OK",
-            "AlarmDescription": "cpucorek8s",
-            "AlarmArn": "arn:aws:cloudwatch:ap-northeast-2:257706363616:alarm:cpucorek8s",
-            "NewStateReason": "Threshold Crossed: 1 out of the last 1 datapoints [9.395 (10/06/21 04:23:00)] was not greater than the threshold (50.0) (minimum 1 datapoint for ALARM -> OK transition).",
-            "StateChangeTime": "2021-06-10T04:28:46.868+0000"
+                "OldStateValue": "ALARM",
+                "Trigger": {
+                    "StatisticType": "Statistic",
+                    "EvaluationPeriods": 1,
+                    "Period": 300,
+                    "MetricName": "CPUUtilization",
+                    "Namespace": "AWS/EC2",
+                    "TreatMissingData": "- TreatMissingData:                    missing",
+                    "Statistic": "MAXIMUM",
+                    "Unit": "None",
+                    "EvaluateLowSampleCountPercentile": "",
+                    "Dimensions": [
+                        {
+                            "value": "i-0b79aaf581d5389d5",
+                            "name": "InstanceId"
+                        }
+                    ],
+                    "ComparisonOperator": "GreaterThanThreshold",
+                    "Threshold": 50.0
+                },
+                "AlarmName": "cpu corek8s ",
+                "Region": "AsiaPacific (Seoul)",
+                "AWSAccountId": "257706363616",
+                "NewStateValue": "OK",
+                "AlarmDescription": "cpucorek8s",
+                "AlarmArn": "arn:aws:cloudwatch:ap-northeast-2:257706363616:alarm:cpucorek8s",
+                "NewStateReason": "Threshold Crossed: 1 out of the last 1 datapoints [9.395 (10/06/21 04:23:00)] was not greater than the threshold (50.0) (minimum 1 datapoint for ALARM -> OK transition).",
+                "StateChangeTime": "2021-06-10T04:28:46.868+0000"
             }
-            acc_id > resource_id > alarm_name > date_time 
+                acc_id > resource_id > alarm_name > date_time 
             """
 
             # _LOGGER.debug(f'[EventManager] parse raw_data : {raw_data}')
@@ -78,16 +75,39 @@ class EventManager(BaseManager):
                     'description': raw_data.get('NewStateReason', ''),
                     'title': self._get_alarm_title(raw_data, dimension),
                     'rule': self._get_rule_for_event(raw_data),
-                    'tags': self._get_tags(raw_data)
+                    'occurred_at': self._get_occurred_at(raw_data),
+                    'additional_info': self._get_additional_info(raw_data)
                 }
 
                 _LOGGER.debug(f'[EventManager] parse Event : {event_vo}')
 
                 event_result_model = EventModel(event_vo, strict=False)
                 event_result_model.validate()
-                default_parsed_data.append(event_result_model.to_primitive())
+                event_result_model_native = event_result_model.to_native()
+                default_parsed_data.append(event_result_model_native)
 
         return default_parsed_data
+
+    @staticmethod
+    def _get_occurred_at(raw_data):
+        current_time = datetime.now()
+        occurred_at = raw_data.get('StateChangeTime', current_time)
+        parsed_occurred_at = None
+
+        if isinstance(occurred_at, datetime):
+            parsed_occurred_at = occurred_at
+        else:
+            timestamp_str = occurred_at.split('.')
+            if '.' in occurred_at:
+                occurred_at_seconds = occurred_at[:occurred_at.find('.')]
+                date_object = datetime.strptime(occurred_at_seconds, _TIMESTAMP_FORMAT)
+                parsed_occurred_at = date_object
+            else:
+                date_object = datetime.strptime(occurred_at, _TIMESTAMP_FORMAT)
+                parsed_occurred_at = date_object
+
+        _LOGGER.debug(f'[EventManager] _occurred_at : {parsed_occurred_at}')
+        return parsed_occurred_at
 
     @staticmethod
     def _get_event_key(raw_data, instance_id):
@@ -97,15 +117,15 @@ class EventManager(BaseManager):
         occurred_at = raw_data.get('StateChangeTime') if raw_data.get('StateChangeTime') is not None else datetime.now()
         indexed_unique_key = None
 
-        if isinstance(occurred_at, datetime):
-            occurred_at_timestamp = str(occurred_at.timestamp())
-            indexed_unique_key = int(occurred_at_timestamp) // 600 * 100
-
         if isinstance(occurred_at, str):
             point_position = occurred_at.find('.')
             occurred_at_timestamp = occurred_at if point_position == -1 else occurred_at[:point_position]
             date_object = datetime.strptime(occurred_at_timestamp, _TIMESTAMP_FORMAT)
             indexed_unique_key = int(date_object.timestamp()) // 600 * 100
+
+        else:
+            occurred_at_timestamp = str(occurred_at.timestamp())
+            indexed_unique_key = int(occurred_at_timestamp) // 600 * 100
 
         raw_event_key = f'{account_id}:{instance_id}:{alarm_name}:{indexed_unique_key}'
         hash_object = hashlib.md5(raw_event_key.encode())
@@ -155,29 +175,29 @@ class EventManager(BaseManager):
         return f'[{value}]: {alarm_name}'
 
     @staticmethod
-    def _get_tags(raw_data):
-        tags = {}
+    def _get_additional_info(raw_data):
+        additional_info = {}
         if 'Trigger' in raw_data:
             pass
         if 'OldStateValue' in raw_data:
-            tags.update({'old_state_value': raw_data.get('OldStateValue')})
+            additional_info.update({'old_state_value': raw_data.get('OldStateValue')})
 
         if 'AlarmName' in raw_data:
-            tags.update({'alarm_name': raw_data.get('AlarmName')})
+            additional_info.update({'alarm_name': raw_data.get('AlarmName')})
 
         if 'Region' in raw_data:
-            tags.update({'region': raw_data.get('Region')})
+            additional_info.update({'region': raw_data.get('Region')})
 
         if 'AWSAccountId' in raw_data:
-            tags.update({'aws_account_id': raw_data.get('AWSAccountId')})
+            additional_info.update({'aws_account_id': raw_data.get('AWSAccountId')})
 
         if 'AlarmDescription' in raw_data:
-            tags.update({'alarm_description': raw_data.get('AlarmDescription')})
+            additional_info.update({'alarm_description': raw_data.get('AlarmDescription')})
 
         if 'AlarmArn' in raw_data:
-            tags.update({'alarm_arn': raw_data.get('AlarmArn')})
+            additional_info.update({'alarm_arn': raw_data.get('AlarmArn')})
 
-        return tags
+        return additional_info
 
 
     @staticmethod

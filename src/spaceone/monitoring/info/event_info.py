@@ -1,4 +1,5 @@
 import functools
+from spaceone.core import utils
 from spaceone.api.monitoring.plugin import event_pb2
 from spaceone.monitoring.model.event_response_model import EventModel
 from spaceone.core.pygrpc.message_type import *
@@ -15,7 +16,8 @@ def EventInfo(event_Info_data: EventModel):
         'severity': event_Info_data['severity'],
         'resource': change_struct_type(event_Info_data['resource']),
         'rule': event_Info_data.get('rule'),
-        'tags': change_struct_type(event_Info_data.get('tags'))
+        'occurred_at': utils.datetime_to_iso8601(event_Info_data.get('occurred_at')),
+        'additional_info': change_struct_type(event_Info_data.get('additional_info'))
     }
     return event_pb2.EventInfo(**info)
 
