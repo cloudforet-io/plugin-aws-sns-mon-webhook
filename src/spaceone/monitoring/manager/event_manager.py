@@ -1,6 +1,7 @@
 import logging
 import requests
 import hashlib
+import json
 from datetime import datetime
 from spaceone.core.manager import BaseManager
 from spaceone.monitoring.model.event_response_model import EventModel
@@ -60,7 +61,10 @@ class EventManager(BaseManager):
             }
                 acc_id > resource_id > alarm_name > date_time 
             """
-
+            if 'Message' in raw_data:
+                message = raw_data.get('Message', '{}')
+                raw_message = self._get_json_message(message)
+                raw_data = raw_message
             # _LOGGER.debug(f'[EventManager] parse raw_data : {raw_data}')
             triggered_data = raw_data.get('Trigger', {})
             dimensions = triggered_data.get('Dimensions', [])
@@ -133,7 +137,6 @@ class EventManager(BaseManager):
 
         return md5_hash
 
-
     @staticmethod
     def _get_rule_for_event(raw_data):
         rule = ''
@@ -199,7 +202,6 @@ class EventManager(BaseManager):
 
         return additional_info
 
-
     @staticmethod
     def _get_severity(raw_data):
         sns_event_state = raw_data.get('NewStateValue')
@@ -220,3 +222,12 @@ class EventManager(BaseManager):
     def _get_event_type(raw_data):
         sns_event_state = raw_data.get('NewStateValue', 'INSUFFICIENT_DATA')
         return 'RECOVERY' if sns_event_state == 'OK' else 'ALERT'
+
+    @staticmethod
+    def _get_json_message(json_raw_data):
+        new_json = {}
+        try:
+            new_json = json.loads(json_raw_data)
+        except Exception as e:
+            _LOGGER.debug(f'[EventManager] _get_json_message : {json_raw_data}')
+        return new_json
