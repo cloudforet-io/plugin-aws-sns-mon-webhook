@@ -1,15 +1,14 @@
-__all__ = ['PluginInfo', 'EventsInfo']
+__all__ = ['WebhookPluginInfo', 'EventsInfo']
 
 from spaceone.api.monitoring.plugin import webhook_pb2, event_pb2
 from spaceone.core.pygrpc.message_type import *
 
 
-def PluginInfo(result):
+def WebhookPluginInfo(result):
     result['metadata'] = change_struct_type(result['metadata'])
-    return webhook_pb2.PluginInfo(**result)
+    return webhook_pb2.WebhookPluginInfo(**result)
 
 
 def EventsInfo(event_info_dict):
-    print(event_info_dict)
     event_info_dict['results'] = change_struct_type(event_info_dict['results'])
     return event_pb2.EventsInfo(**event_info_dict)
