@@ -65,9 +65,11 @@ class EventManager(BaseManager):
                 message = raw_data.get('Message', '{}')
                 raw_message = self._get_json_message(message)
                 raw_data = raw_message
-            # _LOGGER.debug(f'[EventManager] parse raw_data : {raw_data}')
+
+            _LOGGER.debug(f'[EventManager] parse raw_data : {raw_data}')
             triggered_data = raw_data.get('Trigger', {})
             dimensions = triggered_data.get('Dimensions', [])
+
 
             for dimension in dimensions:
                 event_resource = self._get_resource_for_event(dimension, {}, triggered_data)
@@ -175,7 +177,7 @@ class EventManager(BaseManager):
     def _get_alarm_title(raw_data, dimension):
         alarm_name = raw_data.get('AlarmName', '')
         value = dimension.get('value')
-        return f'[{value}]: {alarm_name}'
+        return f'{alarm_name}'
 
     @staticmethod
     def _get_additional_info(raw_data):
