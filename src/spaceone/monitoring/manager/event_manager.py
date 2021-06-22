@@ -26,7 +26,7 @@ class EventManager(BaseManager):
             _LOGGER.debug(f'[Confirm_URL: SubscribeURL] {subscribe_url}')
             _LOGGER.debug(f'[AWS SNS: Status]: {r.status_code}, {r.content}')
         else:
-
+            print('###########')
             # INSUFFICIENT_DATA, ALARM, OK
             """
             {
@@ -69,17 +69,16 @@ class EventManager(BaseManager):
             _LOGGER.debug(f'[EventManager] parse raw_data : {raw_data}')
             triggered_data = raw_data.get('Trigger', {})
             dimensions = triggered_data.get('Dimensions', [])
-
-
+            region = raw_data.get('Region', '')
             for dimension in dimensions:
-                event_resource = self._get_resource_for_event(dimension, {}, triggered_data)
+                event_resource = self._get_resource_for_event(dimension, {}, triggered_data, region)
                 event_vo = {
                     'event_key': self._get_event_key(raw_data, dimension.get('value')),
                     'event_type': self._get_event_type(raw_data),
                     'severity': self._get_severity(raw_data),
                     'resource': event_resource,
                     'description': raw_data.get('NewStateReason', ''),
-                    'title': self._get_alarm_title(raw_data, dimension),
+                    'title': self._get_alarm_title(raw_data),
                     'rule': self._get_rule_for_event(raw_data),
                     'occurred_at': self._get_occurred_at(raw_data),
                     'additional_info': self._get_additional_info(raw_data)
@@ -157,27 +156,31 @@ class EventManager(BaseManager):
         return rule
 
     @staticmethod
-    def _get_resource_for_event(dimension, event_resource, triggered_data):
-        if 'name' in dimension:
+    def _get_resource_for_event(dimension, event_resource, triggered_data, region):
+        resource_type = triggered_data.get('Namespace', '')
+        resource_id = dimension.get('value', '')
+        resource_name = ''
+        if region != '':
+            resource_name = f'[{region}]'
+        if resource_type != '':
+            resource_name = resource_name+f':[{resource_type}]'
+
+        event_resource.update({
+            'name': resource_name+f': {resource_id}',
+            'resource_id': resource_id,
+        })
+        if resource_type != '':
             event_resource.update({
-                'name': dimension.get('name')
-            })
-        if 'value' in dimension:
-            event_resource.update({
-                'resource_id': dimension.get('value')
-            })
-        if 'Namespace' in triggered_data:
-            event_resource.update({
-                'resource_type': triggered_data.get('Namespace')
+                'resource_type': resource_type
             })
 
         return event_resource
 
     @staticmethod
-    def _get_alarm_title(raw_data, dimension):
+    def _get_alarm_title(raw_data):
         alarm_name = raw_data.get('AlarmName', '')
-        value = dimension.get('value')
-        return f'{alarm_name}'
+        region = raw_data.get('Region', '')
+        return f'{alarm_name}' if not region else f'[{region}]: {alarm_name}'
 
     @staticmethod
     def _get_additional_info(raw_data):
