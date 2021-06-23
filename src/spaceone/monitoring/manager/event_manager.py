@@ -90,7 +90,7 @@ class EventManager(BaseManager):
                     self._evaluate_parsing_data(event_vo, default_parsed_data)
 
             except Exception as e:
-                generated = utils.generate_id('amore-pacific', 4)
+                generated = utils.generate_id('aws-sns', 4)
                 hash_object = hashlib.md5(generated.encode())
                 md5_hash = hash_object.hexdigest()
                 error_message = repr(e)
