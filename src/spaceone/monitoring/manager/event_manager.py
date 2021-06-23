@@ -2,6 +2,7 @@ import logging
 import requests
 import hashlib
 import json
+from spaceone.core import utils
 from datetime import datetime
 from spaceone.core.manager import BaseManager
 from spaceone.monitoring.model.event_response_model import EventModel
@@ -26,70 +27,87 @@ class EventManager(BaseManager):
             _LOGGER.debug(f'[Confirm_URL: SubscribeURL] {subscribe_url}')
             _LOGGER.debug(f'[AWS SNS: Status]: {r.status_code}, {r.content}')
         else:
-            print('###########')
-            # INSUFFICIENT_DATA, ALARM, OK
-            """
-            {
-                "OldStateValue": "ALARM",
-                "Trigger": {
-                    "StatisticType": "Statistic",
-                    "EvaluationPeriods": 1,
-                    "Period": 300,
-                    "MetricName": "CPUUtilization",
-                    "Namespace": "AWS/EC2",
-                    "TreatMissingData": "- TreatMissingData:                    missing",
-                    "Statistic": "MAXIMUM",
-                    "Unit": "None",
-                    "EvaluateLowSampleCountPercentile": "",
-                    "Dimensions": [
-                        {
-                            "value": "i-0b79aaf581d5389d5",
-                            "name": "InstanceId"
-                        }
-                    ],
-                    "ComparisonOperator": "GreaterThanThreshold",
-                    "Threshold": 50.0
-                },
-                "AlarmName": "cpu corek8s ",
-                "Region": "AsiaPacific (Seoul)",
-                "AWSAccountId": "257706363616",
-                "NewStateValue": "OK",
-                "AlarmDescription": "cpucorek8s",
-                "AlarmArn": "arn:aws:cloudwatch:ap-northeast-2:257706363616:alarm:cpucorek8s",
-                "NewStateReason": "Threshold Crossed: 1 out of the last 1 datapoints [9.395 (10/06/21 04:23:00)] was not greater than the threshold (50.0) (minimum 1 datapoint for ALARM -> OK transition).",
-                "StateChangeTime": "2021-06-10T04:28:46.868+0000"
-            }
-                acc_id > resource_id > alarm_name > date_time 
-            """
-            if 'Message' in raw_data:
-                message = raw_data.get('Message', '{}')
-                raw_message = self._get_json_message(message)
-                raw_data = raw_message
 
-            _LOGGER.debug(f'[EventManager] parse raw_data : {raw_data}')
-            triggered_data = raw_data.get('Trigger', {})
-            dimensions = triggered_data.get('Dimensions', [])
-            region = raw_data.get('Region', '')
-            for dimension in dimensions:
-                event_resource = self._get_resource_for_event(dimension, {}, triggered_data, region)
-                event_vo = {
-                    'event_key': self._get_event_key(raw_data, dimension.get('value')),
-                    'event_type': self._get_event_type(raw_data),
-                    'severity': self._get_severity(raw_data),
-                    'resource': event_resource,
-                    'description': raw_data.get('NewStateReason', ''),
-                    'title': self._get_alarm_title(raw_data),
-                    'rule': self._get_rule_for_event(raw_data),
-                    'occurred_at': self._get_occurred_at(raw_data),
-                    'additional_info': self._get_additional_info(raw_data)
+            try:
+                """
+                {
+                    "OldStateValue": "ALARM",
+                    "Trigger": {
+                        "StatisticType": "Statistic",
+                        "EvaluationPeriods": 1,
+                        "Period": 300,
+                        "MetricName": "CPUUtilization",
+                        "Namespace": "AWS/EC2",
+                        "TreatMissingData": "- TreatMissingData:                    missing",
+                        "Statistic": "MAXIMUM",
+                        "Unit": "None",
+                        "EvaluateLowSampleCountPercentile": "",
+                        "Dimensions": [
+                            {
+                                "value": "i-0b79aaf581d5389d5",
+                                "name": "InstanceId"
+                            }
+                        ],
+                        "ComparisonOperator": "GreaterThanThreshold",
+                        "Threshold": 50.0
+                    },
+                    "AlarmName": "cpu corek8s ",
+                    "Region": "AsiaPacific (Seoul)",
+                    "AWSAccountId": "257706363616",
+                    "NewStateValue": "OK",
+                    "AlarmDescription": "cpucorek8s",
+                    "AlarmArn": "arn:aws:cloudwatch:ap-northeast-2:257706363616:alarm:cpucorek8s",
+                    "NewStateReason": "Threshold Crossed: 1 out of the last 1 datapoints [9.395 (10/06/21 04:23:00)] was not greater than the threshold (50.0) (minimum 1 datapoint for ALARM -> OK transition).",
+                    "StateChangeTime": "2021-06-10T04:28:46.868+0000"
                 }
+                    acc_id > resource_id > alarm_name > date_time 
+                """
 
-                _LOGGER.debug(f'[EventManager] parse Event : {event_vo}')
+                if 'Message' in raw_data:
+                    message = raw_data.get('Message', '{}')
+                    raw_message = self._get_json_message(message)
+                    raw_data = raw_message
 
-                event_result_model = EventModel(event_vo, strict=False)
-                event_result_model.validate()
-                event_result_model_native = event_result_model.to_native()
-                default_parsed_data.append(event_result_model_native)
+                _LOGGER.debug(f'[EventManager] parse raw_data : {raw_data}')
+                triggered_data = raw_data.get('Trigger', {})
+                dimensions = triggered_data.get('Dimensions')
+                region = raw_data.get('Region', '')
+                for dimension in dimensions:
+                    event_resource = self._get_resource_for_event(dimension, {}, triggered_data, region)
+                    event_vo = {
+                        'event_key': self._get_event_key(raw_data, dimension.get('value')),
+                        'event_type': self._get_event_type(raw_data),
+                        'severity': self._get_severity(raw_data),
+                        'resource': event_resource,
+                        'description': raw_data.get('NewStateReason', ''),
+                        'title': self._get_alarm_title(raw_data),
+                        'rule': self._get_rule_for_event(raw_data),
+                        'occurred_at': self._get_occurred_at(raw_data),
+                        'additional_info': self._get_additional_info(raw_data)
+                    }
+
+                    _LOGGER.debug(f'[EventManager] parse Event : {event_vo}')
+                    self._evaluate_parsing_data(event_vo, default_parsed_data)
+
+            except Exception as e:
+                generated = utils.generate_id('amore-pacific', 4)
+                hash_object = hashlib.md5(generated.encode())
+                md5_hash = hash_object.hexdigest()
+                error_message = repr(e)
+
+                event_vo = {
+                    'event_key': md5_hash,
+                    'event_type': 'ALERT',
+                    'severity': 'CRITICAL',
+                    'resource': {},
+                    'description': error_message,
+                    'title': 'AWS SNS Parsing ERROR',
+                    'rule': '',
+                    'occurred_at': datetime.now(),
+                    'additional_info': {}
+                }
+                self._evaluate_parsing_data(event_vo, default_parsed_data)
+
 
         return default_parsed_data
 
@@ -185,25 +203,11 @@ class EventManager(BaseManager):
     @staticmethod
     def _get_additional_info(raw_data):
         additional_info = {}
-        if 'Trigger' in raw_data:
-            pass
-        if 'OldStateValue' in raw_data:
-            additional_info.update({'old_state_value': raw_data.get('OldStateValue')})
-
-        if 'AlarmName' in raw_data:
-            additional_info.update({'alarm_name': raw_data.get('AlarmName')})
-
-        if 'Region' in raw_data:
-            additional_info.update({'region': raw_data.get('Region')})
-
-        if 'AWSAccountId' in raw_data:
-            additional_info.update({'aws_account_id': raw_data.get('AWSAccountId')})
-
-        if 'AlarmDescription' in raw_data:
-            additional_info.update({'alarm_description': raw_data.get('AlarmDescription')})
-
-        if 'AlarmArn' in raw_data:
-            additional_info.update({'alarm_arn': raw_data.get('AlarmArn')})
+        additional_info_key = ['OldStateValue', 'AlarmName', 'Region', 'AWSAccountId', 'AlarmDescription', 'AlarmArn']
+        for data in raw_data:
+            if data in additional_info_key:
+                if isinstance(raw_data.get(data), str):
+                    additional_info.update({data: raw_data.get(data)})
 
         return additional_info
 
@@ -236,3 +240,10 @@ class EventManager(BaseManager):
         except Exception as e:
             _LOGGER.debug(f'[EventManager] _get_json_message : {json_raw_data}')
         return new_json
+
+    @staticmethod
+    def _evaluate_parsing_data(event_data, return_list):
+        event_result_model = EventModel(event_data, strict=False)
+        event_result_model.validate()
+        event_result_model_native = event_result_model.to_native()
+        return_list.append(event_result_model_native)
