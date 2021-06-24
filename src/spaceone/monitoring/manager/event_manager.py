@@ -217,7 +217,7 @@ class EventManager(BaseManager):
         default_severity_flag = 'NOT_AVAILABLE'
         if sns_event_state == 'OK':
             default_severity_flag = 'INFO'
-        elif sns_event_state == 'ALERT':
+        elif sns_event_state in ['ALERT', 'ALARM']:
             default_severity_flag = 'ERROR'
 
         return default_severity_flag
