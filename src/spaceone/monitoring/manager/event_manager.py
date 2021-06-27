@@ -71,23 +71,49 @@ class EventManager(BaseManager):
                 _LOGGER.debug(f'[EventManager] parse raw_data : {raw_data}')
                 triggered_data = raw_data.get('Trigger', {})
                 dimensions = triggered_data.get('Dimensions')
-                region = raw_data.get('Region', '')
-                for dimension in dimensions:
-                    event_resource = self._get_resource_for_event(dimension, {}, triggered_data, region)
-                    event_vo = {
-                        'event_key': self._get_event_key(raw_data, dimension.get('value')),
-                        'event_type': self._get_event_type(raw_data),
-                        'severity': self._get_severity(raw_data),
-                        'resource': event_resource,
-                        'description': raw_data.get('NewStateReason', ''),
-                        'title': self._get_alarm_title(raw_data),
-                        'rule': self._get_rule_for_event(raw_data),
-                        'occurred_at': self._get_occurred_at(raw_data),
-                        'additional_info': self._get_additional_info(raw_data)
-                    }
+                metrics = triggered_data.get('Metrics')
 
-                    _LOGGER.debug(f'[EventManager] parse Event : {event_vo}')
-                    self._evaluate_parsing_data(event_vo, default_parsed_data)
+                region = raw_data.get('Region', '')
+                if dimensions is not None:
+                    for dimension in dimensions:
+                        event_resource = self._get_resource_for_event(dimension, {}, triggered_data, region)
+                        event_vo = {
+                            'event_key': self._get_event_key(raw_data, dimension.get('value')),
+                            'event_type': self._get_event_type(raw_data),
+                            'severity': self._get_severity(raw_data),
+                            'resource': event_resource,
+                            'description': raw_data.get('NewStateReason', ''),
+                            'title': self._get_alarm_title(raw_data),
+                            'rule': self._get_rule_for_event(raw_data),
+                            'occurred_at': self._get_occurred_at(raw_data),
+                            'additional_info': self._get_additional_info(raw_data)
+                        }
+
+                        _LOGGER.debug(f'[EventManager] parse Event : {event_vo}')
+                        self._evaluate_parsing_data(event_vo, default_parsed_data)
+                elif metrics is not None:
+                    for metric in metrics:
+                        metric_stat = metric.get('MetricStat', {})
+                        inner_metric = metric_stat.get('Metric', {})
+                        inner_dimensions = inner_metric.get('Dimensions')
+                        if inner_dimensions is not None:
+                            for in_dimension in inner_dimensions:
+                                event_resource = self._get_resource_for_event(in_dimension, {}, triggered_data, region)
+                                event_vo = {
+                                    'event_key': self._get_event_key(raw_data, in_dimension.get('value')),
+                                    'event_type': self._get_event_type(raw_data),
+                                    'severity': self._get_severity(raw_data),
+                                    'resource': event_resource,
+                                    'description': raw_data.get('NewStateReason', ''),
+                                    'title': self._get_alarm_title(raw_data),
+                                    'rule': self._get_rule_for_event(raw_data),
+                                    'occurred_at': self._get_occurred_at(raw_data),
+                                    'additional_info': self._get_additional_info(raw_data)
+                                }
+
+                                _LOGGER.debug(f'[EventManager] parse Event : {event_vo}')
+                                self._evaluate_parsing_data(event_vo, default_parsed_data)
+
 
             except Exception as e:
                 generated = utils.generate_id('aws-sns', 4)
@@ -172,6 +198,27 @@ class EventManager(BaseManager):
             rule = threshold if threshold is not None else trigger.get('MetricName')
 
         return rule
+
+    @staticmethod
+    def _get_resource_for_event_from_metric(dimension, event_resource, triggered_data, region):
+        resource_type = triggered_data.get('Namespace', '')
+        resource_id = dimension.get('value', '')
+        resource_name = ''
+        if region != '':
+            resource_name = f'[{region}]'
+        if resource_type != '':
+            resource_name = resource_name + f':[{resource_type}]'
+
+        event_resource.update({
+            'name': resource_name + f': {resource_id}',
+            'resource_id': resource_id,
+        })
+        if resource_type != '':
+            event_resource.update({
+                'resource_type': resource_type
+            })
+
+        return event_resource
 
     @staticmethod
     def _get_resource_for_event(dimension, event_resource, triggered_data, region):
