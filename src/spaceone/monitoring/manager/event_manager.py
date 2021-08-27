@@ -122,9 +122,10 @@ class EventManager(BaseManager):
         triggered_data = message.get('Trigger', {})
         region = message.get('Region', '')
         occurred_at = self._get_occurred_at(message)
+        namespace = self._get_namespace(message)
 
         for dimension in triggered_data.get('Dimensions', []):
-            event_dict = self._generate_event_dict(message, dimension, triggered_data, region, occurred_at, raw_data)
+            event_dict = self._generate_event_dict(message, dimension, triggered_data, namespace, region, occurred_at, raw_data)
             _LOGGER.debug(f'[EventManager] parse Event : {event_dict}')
             events.append(self._evaluate_parsing_data(event_dict))
 
@@ -132,24 +133,36 @@ class EventManager(BaseManager):
             metric_data = metric.get('MetricStat', {}).get('Metric', {})
 
             for dimension in metric_data.get('Dimensions', []):
-                event_dict = self._generate_event_dict(message, dimension, triggered_data, region, occurred_at, raw_data)
+                event_dict = self._generate_event_dict(message, dimension, triggered_data, namespace, region, occurred_at, raw_data)
                 _LOGGER.debug(f'[EventManager] parse Event : {event_dict}')
                 events.append(self._evaluate_parsing_data(event_dict))
 
         return events
 
-    def _generate_event_dict(self, message, dimension, triggered_data, region, occurred_at, raw_data):
+    def _generate_event_dict(self, message, dimension, triggered_data, namespace, region, occurred_at, raw_data):
         return {
             'event_key': self._get_event_key(message, dimension.get('value'), occurred_at),
             'event_type': self._get_event_type(message),
             'severity': self._get_severity(message),
-            'resource': self._get_resource_for_event(dimension, triggered_data.get('Namespace', ''), region),
+            'resource': self._get_resource_for_event(dimension, namespace, region),
             'description': message.get('NewStateReason', ''),
             'title': raw_data.get('Subject'),
             'rule': self._get_rule_for_event(message),
             'occurred_at': occurred_at,
             'additional_info': self._get_additional_info(message)
         }
+
+    @staticmethod
+    def _get_namespace(message):
+        if ns := message.get('Trigger', {}).get('Namespace'):
+            return ns
+        else:
+            for metric in message.get('Trigger', {}).get('Metrics', []):
+                _m = metric.get('MetricStat', {}).get('Metric', {})
+                if ns := _m.get('Namespace'):
+                    return ns
+
+        return ''
 
     @staticmethod
     def request_subscription_confirm(confirm_url):
@@ -257,7 +270,7 @@ class EventManager(BaseManager):
         if sns_event_state == 'OK':
             severity_flag = 'INFO'
         elif sns_event_state in ['ALERT', 'ALARM']:
-            severity_flag = 'CRITICAL'
+            severity_flag = 'ERROR'
         else:
             severity_flag = None
 
