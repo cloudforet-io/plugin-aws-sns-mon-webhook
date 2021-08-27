@@ -136,6 +136,8 @@ class EventManager(BaseManager):
                 _LOGGER.debug(f'[EventManager] parse Event : {event_dict}')
                 events.append(self._evaluate_parsing_data(event_dict))
 
+        return events
+
     def _generate_event_dict(self, message, dimension, triggered_data, region, occurred_at, raw_data):
         return {
             'event_key': self._get_event_key(message, dimension.get('value'), occurred_at),
@@ -163,7 +165,7 @@ class EventManager(BaseManager):
             return datetime.now()
 
     @staticmethod
-    def _get_event_key(message, resource_id, occured_at):
+    def _get_event_key(message, resource_id, occurred_at):
         """
         Generate the Index Key through Hashing
             {account_id}:{instance_id}:{alarm_name}:{date_time}
@@ -171,7 +173,7 @@ class EventManager(BaseManager):
 
         account_id = message.get('AWSAccountId')
         alarm_name = message.get('AlarmName')
-        datetime_key = int(occured_at.timestamp() // 600 * 100)
+        datetime_key = int(occurred_at.timestamp() // 600 * 100)
 
         raw_event_key = f'{account_id}:{resource_id}:{alarm_name}:{datetime_key}'
         hash_object = hashlib.md5(raw_event_key.encode())
@@ -236,7 +238,7 @@ class EventManager(BaseManager):
         additional_info_key = ['OldStateValue', 'AlarmName', 'Region', 'AWSAccountId', 'AlarmDescription', 'AlarmArn']
 
         for _key in message:
-            if _key in additional_info_key:
+            if _key in additional_info_key and message.get(_key):
                 additional_info.update({_key: message.get(_key)})
 
         return additional_info
@@ -258,7 +260,7 @@ class EventManager(BaseManager):
         elif sns_event_state in ['ALERT', 'ALARM']:
             severity_flag = 'CRITICAL'
         else:
-            severity_flag = 'NOT_AVAILABLE'
+            severity_flag = None
 
         return severity_flag
 
