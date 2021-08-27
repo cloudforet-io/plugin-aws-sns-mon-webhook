@@ -217,7 +217,6 @@ class EventManager(BaseManager):
             "value": "i-0b79aaf581d5389d5",
             "name": "InstanceId"
         }
-
         :return
         {
           resource_id,
@@ -278,4 +277,3 @@ class EventManager(BaseManager):
         event_result_model = EventModel(event_data, strict=False)
         event_result_model.validate()
         return event_result_model.to_native()
-
