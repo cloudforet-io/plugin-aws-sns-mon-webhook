@@ -146,7 +146,7 @@ class EventManager(BaseManager):
             'severity': self._get_severity(message),
             'resource': self._get_resource_for_event(dimension, namespace, region),
             'description': message.get('NewStateReason', ''),
-            'title': raw_data.get('Subject'),
+            'title': self._remove_code_in_title(raw_data.get('Subject', '')),
             'rule': self._get_rule_for_event(message),
             'occurred_at': occurred_at,
             'additional_info': self._get_additional_info(message)
@@ -176,6 +176,15 @@ class EventManager(BaseManager):
             return datetime.strptime(t, '%Y-%m-%dT%H:%M:%S.%f+0000')
         else:
             return datetime.now()
+
+    @staticmethod
+    def _remove_code_in_title(title):
+        alert_codes = ['ALARM: ', 'OK: ', 'ALERT: ']
+        for alert_code in alert_codes:
+            if alert_code in title:
+                return title.replace(alert_code, '')
+
+        return title
 
     @staticmethod
     def _get_event_key(message, resource_id, occurred_at):
