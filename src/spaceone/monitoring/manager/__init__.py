@@ -1,1 +1,2 @@
 from spaceone.monitoring.manager.event_manager import EventManager
+from spaceone.monitoring.manager.phd_event_manager import PersonalHealthDashboardManager

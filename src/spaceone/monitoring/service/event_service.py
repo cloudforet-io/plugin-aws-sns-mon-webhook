@@ -12,7 +12,8 @@ class EventService(BaseService):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.event_mgr: EventManager = self.locator.get_manager('EventManager')
+        #TODO: EventManager와 PersonalHealthDashboardManager 구별하는 다른 방안 마련해야 함
+        self.event_mgr: EventManager = self.locator.get_manager('PersonalHealthDashboardManager')
 
     @transaction
     @check_required(['options', 'data'])
