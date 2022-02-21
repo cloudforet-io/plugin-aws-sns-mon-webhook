@@ -1,6 +1,5 @@
 import logging
 import requests
-import hashlib
 import json
 from datetime import datetime
 
@@ -154,52 +153,55 @@ class PersonalHealthDashboardManager(BaseManager):
               }
             }
         """
+        # event_id = message.get('id', '')
+        resource_type = message.get('source', 'aws.health')
+        account_id = message.get('account', '')
+        # region_code = message.get('region', '')
+        detail_event = message.get('detail', {})
 
-
-        triggered_data = message.get('Trigger', {})
-        region = message.get('Region', '')
-        occurred_at = self._get_occurred_at(message)
-        namespace = self._get_namespace(message)
-
-        for dimension in triggered_data.get('Dimensions', []):
-            event_dict = self._generate_event_dict(message, dimension, triggered_data, namespace, region, occurred_at, raw_data)
-            _LOGGER.debug(f'[EventManager] parse Event : {event_dict}')
-            events.append(self._evaluate_parsing_data(event_dict))
-
-        for metric in triggered_data.get('Metrics', []):
-            metric_data = metric.get('MetricStat', {}).get('Metric', {})
-
-            for dimension in metric_data.get('Dimensions', []):
-                event_dict = self._generate_event_dict(message, dimension, triggered_data, namespace, region, occurred_at, raw_data)
-                _LOGGER.debug(f'[EventManager] parse Event : {event_dict}')
-                events.append(self._evaluate_parsing_data(event_dict))
+        event_arn = detail_event.get('eventArn', '')
+        # service = detail_event.get('service', '')
+        event_type_code = detail_event.get('eventTypeCode', '')
+        event_type_category = detail_event.get('eventTypeCategory', '')
+        occurred_at = self._get_occurred_at(detail_event)
+        event_description = self._generate_description(detail_event, account_id)
+        # affected_entities = detail_event.get('affectedEntities', '')
+        # affected_resources = [resource.get('entityValue', '') for resource in affected_entities]
+        event_dict = self._generate_event_dict(event_arn, event_type_category, resource_type, event_description,
+                                               event_type_code,
+                                               occurred_at, message)
+        events.append(self._evaluate_parsing_data(event_dict))
 
         return events
 
-    def _generate_event_dict(self, message, dimension, triggered_data, namespace, region, occurred_at, raw_data):
+    def _generate_event_dict(self, event_arn, event_type_category, resource_type, event_description, event_type_code,
+                             occurred_at, message):
         return {
-            'event_key': self._get_event_key(message, dimension.get('value'), occurred_at),
-            'event_type': self._get_event_type(message),
-            'severity': self._get_severity(message),
-            'resource': self._get_resource_for_event(dimension, namespace, region),
-            'description': message.get('NewStateReason', ''),
-            'title': self._remove_code_in_title(raw_data.get('Subject', '')),
-            'rule': self._get_rule_for_event(message),
+            'event_key': event_arn,
+            'event_type': self._get_event_type(),
+            'severity': self._get_severity(event_type_category),
+            'resource': self._get_resource_for_event(event_arn, resource_type),
+            'description': event_description,
+            'title': self._change_string_format(event_type_code),
+            'rule': event_type_category,
             'occurred_at': occurred_at,
             'additional_info': self._get_additional_info(message)
         }
 
     @staticmethod
-    def _get_namespace(message):
-        if ns := message.get('Trigger', {}).get('Namespace'):
-            return ns
-        else:
-            for metric in message.get('Trigger', {}).get('Metrics', []):
-                _m = metric.get('MetricStat', {}).get('Metric', {})
-                if ns := _m.get('Namespace'):
-                    return ns
+    def _change_string_format(event_type_code):
+        title = event_type_code.replace('_', ' ').title()
+        return title
 
-        return ''
+    @staticmethod
+    def _generate_description(detail_event, account_id):
+        description = ''
+        for index, text in enumerate(detail_event.get('eventDescription', []), 1):
+            description += text.get('latestDescription', '')
+            if index >= 2:
+                description += f" {text.get('latestDescription', '')}"
+        description += f'(Account:{account_id})'
+        return description
 
     @staticmethod
     def request_subscription_confirm(confirm_url):
@@ -208,124 +210,53 @@ class PersonalHealthDashboardManager(BaseManager):
         _LOGGER.debug(f'[AWS SNS: Status]: {r.status_code}, {r.content}')
 
     @staticmethod
-    def _get_occurred_at(message):
-        if t := message.get('StateChangeTime'):
-            return datetime.strptime(t, '%Y-%m-%dT%H:%M:%S.%f+0000')
+    def _get_occurred_at(detail_event):
+        if t := detail_event.get('startTime'):
+            return datetime.strptime(t, '%a, %d %b %Y %H:%M:%S %Z')
         else:
             return datetime.now()
 
     @staticmethod
-    def _remove_code_in_title(title):
-        alert_codes = ['ALARM: ', 'OK: ', 'ALERT: ']
-        for alert_code in alert_codes:
-            if alert_code in title:
-                return title.replace(alert_code, '')
-
-        return title
-
-    @staticmethod
-    def _get_event_key(message, resource_id, occurred_at):
-        """
-        Generate the Index Key through Hashing
-            {account_id}:{instance_id}:{alarm_name}:{date_time}
-        """
-
-        account_id = message.get('AWSAccountId')
-        alarm_name = message.get('AlarmName')
-        datetime_key = int(occurred_at.timestamp() // 600 * 100)
-
-        raw_event_key = f'{account_id}:{resource_id}:{alarm_name}:{datetime_key}'
-        hash_object = hashlib.md5(raw_event_key.encode())
-        md5_hash = hash_object.hexdigest()
-
-        return md5_hash
-
-    @staticmethod
-    def _get_rule_for_event(message):
-        # TODO
-        rule = ''
-
-        return rule
-
-    @staticmethod
-    def _get_resource_for_event_from_metric(dimension, event_resource, triggered_data, region):
-        resource_type = triggered_data.get('Namespace', '')
-        resource_id = dimension.get('value', '')
-        resource_name = ''
-        if region != '':
-            resource_name = f'[{region}]'
-        if resource_type != '':
-            resource_name = resource_name + f':[{resource_type}]'
-
-        event_resource.update({
-            'name': resource_name + f': {resource_id}',
-            'resource_id': resource_id,
-        })
-        if resource_type != '':
-            event_resource.update({
-                'resource_type': resource_type
-            })
-
-        return event_resource
-
-    @staticmethod
-    def _get_resource_for_event(dimension, namespace, region):
-        """
-        dimension sample"
-        {
-            "value": "i-0b79aaf581d5389d5",
-            "name": "InstanceId"
-        }
-        :return
-        {
-          resource_id,
-          resource_type,
-          name
-        }
-        """
-
-        return {
-            'resource_id': dimension.get('value', ''),
-            'resource_type': namespace,
-            'name': f'[{namespace}] {dimension.get("name", "")}={dimension.get("value", "")} ({region})'
-        }
-
-    @staticmethod
     def _get_additional_info(message):
         additional_info = {}
-        additional_info_key = ['OldStateValue', 'AlarmName', 'Region', 'AWSAccountId', 'AlarmDescription', 'AlarmArn']
+        additional_info_key = ['id', 'account', 'region', 'service', 'eventTypeCode'] #TODO: " , 'affectedEntities' "
 
         for _key in message:
             if _key in additional_info_key and message.get(_key):
                 additional_info.update({_key: message.get(_key)})
+            if _key == "detail":
+                detail_event = message.get(_key)
+                for detail_key in detail_event:
+                    if detail_key in additional_info_key:
+                        additional_info.update({detail_key: detail_event.get(detail_key)})
 
         return additional_info
 
     @staticmethod
-    def _get_severity(message):
+    def _get_severity(event_type_category):
         """
         Severity:
-            - CRITICAL
-            - ERROR
-            - WARNING
-            - INFO
-            - NOT_AVAILABLE
+            - issue, scheduledChange -> ERROR
+            - accountNotification -> INFO
         """
-        sns_event_state = message.get('NewStateValue')
 
-        if sns_event_state == 'OK':
-            severity_flag = 'INFO'
-        elif sns_event_state in ['ALERT', 'ALARM']:
+        if event_type_category in ['issue', 'scheduledChange']:
             severity_flag = 'ERROR'
         else:
-            severity_flag = None
+            severity_flag = 'INFO'
 
         return severity_flag
 
     @staticmethod
-    def _get_event_type(message):
-        sns_event_state = message.get('NewStateValue', 'INSUFFICIENT_DATA')
-        return 'RECOVERY' if sns_event_state == 'OK' else 'ALERT'
+    def _get_resource_for_event(event_arn, resource_type):
+        return {
+            'resouce_id': event_arn,
+            'resource_type': resource_type
+        }
+
+    @staticmethod
+    def _get_event_type():
+        return 'ALERT'
 
     @staticmethod
     def _get_json_message(json_raw_data):
