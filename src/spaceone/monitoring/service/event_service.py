@@ -40,7 +40,7 @@ class EventService(BaseService):
     @staticmethod
     def _decision_manager(raw_data):
         execute_manager = ''
-        message = json.loads(raw_data.get("Message"))
+        message = json.loads(raw_data.get("Message", {}))
 
         # cloudwatch manager
         if "AlarmArn" in message.keys():
