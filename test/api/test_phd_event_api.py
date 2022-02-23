@@ -11,6 +11,7 @@ _LOGGER = logging.getLogger(__name__)
 
 class TestEvent(TestCase):
     def test_parse(self):
+
         param = {"options": {},
                  "data": {
                      "MessageId": "3f78eee9-6691-51be-b77e-b4603c34d486", "Timestamp": "2022-02-18T08:27:17.407Z",
