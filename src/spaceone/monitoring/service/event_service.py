@@ -45,12 +45,12 @@ class EventService(BaseService):
         try:
             # cloudwatch manager
             if "AlarmArn" in message.keys():
-                _, __, service, *___ = message.get("AlarmArn").split(":")
+                service = message.get("AlarmArn").split(":")[2]
                 if service == "cloudwatch":
                     execute_manager = "EventManager"
             # PHD manager
             if "source" in message.keys():
-                _, service, *__ = message.get("source").split(".")
+                service = message.get("source").split(".")[1]
                 if service == 'health':
                     execute_manager = "PersonalHealthDashboardManager"
         except Exception as e:

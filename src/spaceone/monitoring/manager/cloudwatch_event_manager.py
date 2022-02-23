@@ -5,7 +5,7 @@ import json
 from datetime import datetime
 
 from spaceone.core.manager import BaseManager
-from spaceone.monitoring.model.event_response_model import EventModel
+from spaceone.monitoring.model.cloudwatch_event_response_model import EventModel
 from spaceone.monitoring.error.event import *
 
 _LOGGER = logging.getLogger(__name__)
