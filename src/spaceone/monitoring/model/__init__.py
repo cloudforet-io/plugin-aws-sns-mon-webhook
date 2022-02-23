@@ -1,1 +1,1 @@
-from spaceone.monitoring.model.event_response_model import *
+from spaceone.monitoring.model.cloudwatch_event_response_model import *
