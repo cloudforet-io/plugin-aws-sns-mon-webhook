@@ -1,15 +1,26 @@
 from schematics.models import Model
-from schematics.types import StringType, ModelType, DateTimeType
+from schematics.types import DictType, StringType, ModelType, DateTimeType, PolyModelType, ListType
 
 __all__ = ['EventModel']
 
 
-class CloudWatchAdditionalInfo(Model):
-    AWSAccountId = StringType(required=True)
-    AlarmArn = StringType(required=True)
-    AlarmName = StringType()
-    OldStateValue = StringType()
-    Region = StringType()
+class Tags(Model):
+    stage = StringType(default='')
+    app = StringType(default='')
+
+
+class AffectedEntities(Model):
+    entityValue = StringType()
+    tags = ModelType(Tags, default={}, serialize_when_none=False)
+
+
+class HealthAdditionalInfo(Model):
+    id = StringType(required=True)
+    account = StringType(required=True)
+    region = StringType()
+    service = StringType(required=True)
+    eventTypeCode = StringType()
+    affectedEntities = ListType(ModelType(AffectedEntities))
 
 
 class ResourceModel(Model):
@@ -28,4 +39,4 @@ class EventModel(Model):
     resource = ModelType(ResourceModel)
     rule = StringType(default='')
     occurred_at = DateTimeType()
-    additional_info = ModelType(CloudWatchAdditionalInfo)
+    additional_info = ModelType(HealthAdditionalInfo)

@@ -4,7 +4,7 @@ import json
 from datetime import datetime
 
 from spaceone.core.manager import BaseManager
-from spaceone.monitoring.model.event_response_model import EventModel
+from spaceone.monitoring.model.phd_event_response_model import EventModel
 from spaceone.monitoring.error.event import *
 
 _LOGGER = logging.getLogger(__name__)
@@ -153,20 +153,15 @@ class PersonalHealthDashboardManager(BaseManager):
               }
             }
         """
-        # event_id = message.get('id', '')
         resource_type = message.get('source', 'aws.health')
         account_id = message.get('account', '')
-        # region_code = message.get('region', '')
         detail_event = message.get('detail', {})
 
         event_arn = detail_event.get('eventArn', '')
-        # service = detail_event.get('service', '')
         event_type_code = detail_event.get('eventTypeCode', '')
         event_type_category = detail_event.get('eventTypeCategory', '')
         occurred_at = self._get_occurred_at(detail_event)
         event_description = self._generate_description(detail_event, account_id)
-        # affected_entities = detail_event.get('affectedEntities', '')
-        # affected_resources = [resource.get('entityValue', '') for resource in affected_entities]
         event_dict = self._generate_event_dict(event_arn, event_type_category, resource_type, event_description,
                                                event_type_code,
                                                occurred_at, message)
@@ -195,12 +190,10 @@ class PersonalHealthDashboardManager(BaseManager):
 
     @staticmethod
     def _generate_description(detail_event, account_id):
-        description = ''
-        for index, text in enumerate(detail_event.get('eventDescription', []), 1):
-            description += text.get('latestDescription', '')
-            if index >= 2:
-                description += f" {text.get('latestDescription', '')}"
-        description += f'(Account:{account_id})'
+        text = [description.get('latestDescription', '')
+                for description in detail_event.get('eventDescription', '')]
+        full_text = ' '.join(text)
+        description = f'{full_text} (Account:{account_id})'
         return description
 
     @staticmethod
@@ -219,8 +212,7 @@ class PersonalHealthDashboardManager(BaseManager):
     @staticmethod
     def _get_additional_info(message):
         additional_info = {}
-        additional_info_key = ['id', 'account', 'region', 'service', 'eventTypeCode'] #TODO: " , 'affectedEntities' "
-
+        additional_info_key = ['id', 'account', 'region', 'service', 'eventTypeCode', 'affectedEntities']
         for _key in message:
             if _key in additional_info_key and message.get(_key):
                 additional_info.update({_key: message.get(_key)})
