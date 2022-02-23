@@ -5,7 +5,7 @@ import json
 from datetime import datetime
 
 from spaceone.core.manager import BaseManager
-from spaceone.monitoring.model.event_response_model import EventModel
+from spaceone.monitoring.model.cloudwatch_event_response_model import EventModel
 from spaceone.monitoring.error.event import *
 
 _LOGGER = logging.getLogger(__name__)
@@ -125,7 +125,8 @@ class EventManager(BaseManager):
         namespace = self._get_namespace(message)
 
         for dimension in triggered_data.get('Dimensions', []):
-            event_dict = self._generate_event_dict(message, dimension, triggered_data, namespace, region, occurred_at, raw_data)
+            event_dict = self._generate_event_dict(message, dimension, triggered_data, namespace, region, occurred_at,
+                                                   raw_data)
             _LOGGER.debug(f'[EventManager] parse Event : {event_dict}')
             events.append(self._evaluate_parsing_data(event_dict))
 
@@ -133,7 +134,8 @@ class EventManager(BaseManager):
             metric_data = metric.get('MetricStat', {}).get('Metric', {})
 
             for dimension in metric_data.get('Dimensions', []):
-                event_dict = self._generate_event_dict(message, dimension, triggered_data, namespace, region, occurred_at, raw_data)
+                event_dict = self._generate_event_dict(message, dimension, triggered_data, namespace, region,
+                                                       occurred_at, raw_data)
                 _LOGGER.debug(f'[EventManager] parse Event : {event_dict}')
                 events.append(self._evaluate_parsing_data(event_dict))
 
@@ -205,7 +207,6 @@ class EventManager(BaseManager):
 
     @staticmethod
     def _get_rule_for_event(message):
-        # TODO
         rule = ''
 
         return rule

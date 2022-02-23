@@ -1,6 +1,6 @@
 import logging
+import json
 from spaceone.core.service import *
-from spaceone.monitoring.manager.event_manager import EventManager
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -12,7 +12,6 @@ class EventService(BaseService):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.event_mgr: EventManager = self.locator.get_manager('EventManager')
 
     @transaction
     @check_required(['options', 'data'])
@@ -32,6 +31,28 @@ class EventService(BaseService):
 
         options = params.get('options')
         raw_data = params.get('data')
-        parsed_event = self.event_mgr.parse(options, raw_data)
+        execute_manager = self._decision_manager(raw_data)
+        _manager = self.locator.get_manager(execute_manager)
+        parsed_event = _manager.parse(options, raw_data)
         _LOGGER.debug(f'[EventService: parse] {parsed_event}')
         return parsed_event
+
+    @staticmethod
+    def _decision_manager(raw_data):
+        execute_manager = ''
+        message = json.loads(raw_data.get("Message"))
+
+        # cloudwatch manager
+        if "AlarmArn" in message.keys():
+            service = message.get("AlarmArn").split(":")[2]
+            if service == "cloudwatch":
+                execute_manager = "EventManager"
+            return execute_manager
+        # PHD manager
+        elif "source" in message.keys():
+            service = message.get("source").split(".")[1]
+            if service == 'health':
+                execute_manager = "PersonalHealthDashboardManager"
+            return execute_manager
+        else:
+            raise Exception(f'An unknown data has occurred')

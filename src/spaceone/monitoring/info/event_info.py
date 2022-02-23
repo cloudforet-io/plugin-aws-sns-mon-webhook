@@ -1,7 +1,7 @@
 import functools
 from spaceone.core import utils
 from spaceone.api.monitoring.plugin import event_pb2
-from spaceone.monitoring.model.event_response_model import EventModel
+from spaceone.monitoring.model.cloudwatch_event_response_model import EventModel
 from spaceone.core.pygrpc.message_type import *
 
 __all__ = ['EventInfo', 'EventsInfo']

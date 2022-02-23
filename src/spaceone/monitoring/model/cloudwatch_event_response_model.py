@@ -1,7 +1,15 @@
 from schematics.models import Model
-from schematics.types import DictType, StringType, ModelType, DateTimeType
+from schematics.types import StringType, ModelType, DateTimeType
 
 __all__ = ['EventModel']
+
+
+class CloudWatchAdditionalInfo(Model):
+    AWSAccountId = StringType(required=True)
+    AlarmArn = StringType(required=True)
+    AlarmName = StringType()
+    OldStateValue = StringType()
+    Region = StringType()
 
 
 class ResourceModel(Model):
@@ -20,4 +28,4 @@ class EventModel(Model):
     resource = ModelType(ResourceModel)
     rule = StringType(default='')
     occurred_at = DateTimeType()
-    additional_info = DictType(StringType(), default={})
+    additional_info = ModelType(CloudWatchAdditionalInfo)
