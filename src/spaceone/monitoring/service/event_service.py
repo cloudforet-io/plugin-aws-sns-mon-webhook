@@ -42,17 +42,17 @@ class EventService(BaseService):
         execute_manager = ''
         message = json.loads(raw_data.get("Message"))
 
-        try:
-            # cloudwatch manager
-            if "AlarmArn" in message.keys():
-                service = message.get("AlarmArn").split(":")[2]
-                if service == "cloudwatch":
-                    execute_manager = "EventManager"
-            # PHD manager
-            if "source" in message.keys():
-                service = message.get("source").split(".")[1]
-                if service == 'health':
-                    execute_manager = "PersonalHealthDashboardManager"
-        except Exception as e:
-            _LOGGER.info(f'An unknown data has occurred {e}')
-        return execute_manager
+        # cloudwatch manager
+        if "AlarmArn" in message.keys():
+            service = message.get("AlarmArn").split(":")[2]
+            if service == "cloudwatch":
+                execute_manager = "EventManager"
+            return execute_manager
+        # PHD manager
+        elif "source" in message.keys():
+            service = message.get("source").split(".")[1]
+            if service == 'health':
+                execute_manager = "PersonalHealthDashboardManager"
+            return execute_manager
+        else:
+            raise Exception(f'An unknown data has occurred')
