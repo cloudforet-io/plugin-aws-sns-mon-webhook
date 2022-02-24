@@ -220,7 +220,12 @@ class PersonalHealthDashboardManager(BaseManager):
                 detail_event = message.get(_key)
                 for detail_key in detail_event:
                     if detail_key in additional_info_key:
-                        additional_info.update({detail_key: detail_event.get(detail_key)})
+                        if detail_key == "affectedEntities":
+                            affected_entities = [affected_entity.get("entityValue", "")
+                                                 for affected_entity in detail_event.get(detail_key)]
+                            additional_info.update({detail_key: affected_entities})
+                        else:
+                            additional_info.update({detail_key: detail_event.get(detail_key)})
 
         return additional_info
 
