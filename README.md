@@ -1,6 +1,7 @@
 # plugin-aws-sns-monitoring-webhook
 
-![amazon-sns-ft](https://user-images.githubusercontent.com/83386688/155256020-1ec0a277-2613-418e-b2d4-ee0e614c92ed.png)
+![sns](https://user-images.githubusercontent.com/83386688/155678636-4e35b1d3-3fb6-4d1d-84aa-323a7f73b966.png)
+
 
 **Webhook plugin for AWS SNS**
 
