@@ -4,23 +4,13 @@ from schematics.types import DictType, StringType, ModelType, DateTimeType, Poly
 __all__ = ['EventModel']
 
 
-class Tags(Model):
-    stage = StringType(default='')
-    app = StringType(default='')
-
-
-class AffectedEntities(Model):
-    entityValue = StringType()
-    tags = ModelType(Tags, default={}, serialize_when_none=False)
-
-
 class HealthAdditionalInfo(Model):
     id = StringType(required=True)
     account = StringType(required=True)
     region = StringType()
     service = StringType(required=True)
     eventTypeCode = StringType()
-    affectedEntities = ListType(ModelType(AffectedEntities))
+    affectedEntities = ListType(StringType, default=[])
 
 
 class ResourceModel(Model):
