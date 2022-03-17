@@ -1,12 +1,10 @@
 import logging
-import requests
 import hashlib
 import json
 from datetime import datetime
 
 from spaceone.core.manager import BaseManager
 from spaceone.monitoring.model.cloudwatch_event_response_model import EventModel
-from spaceone.monitoring.error.event import *
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -16,27 +14,19 @@ class EventManager(BaseManager):
         super().__init__(*args, **kwargs)
 
     def parse(self, options, raw_data):
-        try:
-            if raw_data.get('Type') == 'SubscriptionConfirmation':
-                self.request_subscription_confirm(raw_data.get('SubscribeURL'))
-                return []
-            else:
-                """ --- RAW_DATA Sample ---
-                "TopicArn": "arn:xxxxx",
-                "Subject": "ALARM: ....",
-                "SigningCertURL": "https://sns..../...pem",
-                "MessageId": "838a70d8-d3c7-5d0c-a03a-29789bc46b66",
-                "Message": "{RAW_JSON_MESSAGE}",
-                "Timestamp": "2021-08-25T13:29:39.389Z",
-                "SignatureVersion": "1",
-                "Type": "Notification",
-                "Signature": "ht4kn+........==",
-                "UnsubscribeURL": "https://sns......"
-                """
-                return self._generate_events(self._get_json_message(raw_data.get('Message', {})), raw_data)
-
-        except Exception as e:
-            raise ERROR_PARSE_EVENT(field=e)
+        """ --- RAW_DATA Sample ---
+        "TopicArn": "arn:xxxxx",
+        "Subject": "ALARM: ....",
+        "SigningCertURL": "https://sns..../...pem",
+        "MessageId": "838a70d8-d3c7-5d0c-a03a-29789bc46b66",
+        "Message": "{RAW_JSON_MESSAGE}",
+        "Timestamp": "2021-08-25T13:29:39.389Z",
+        "SignatureVersion": "1",
+        "Type": "Notification",
+        "Signature": "ht4kn+........==",
+        "UnsubscribeURL": "https://sns......"
+        """
+        return self._generate_events(self._get_json_message(raw_data.get('Message', {})), raw_data)
 
     def _generate_events(self, message, raw_data):
         events = []
@@ -165,12 +155,6 @@ class EventManager(BaseManager):
                     return ns
 
         return ''
-
-    @staticmethod
-    def request_subscription_confirm(confirm_url):
-        r = requests.get(confirm_url)
-        _LOGGER.debug(f'[Confirm_URL: SubscribeURL] {confirm_url}')
-        _LOGGER.debug(f'[AWS SNS: Status]: {r.status_code}, {r.content}')
 
     @staticmethod
     def _get_occurred_at(message):
