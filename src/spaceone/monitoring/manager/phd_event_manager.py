@@ -184,7 +184,14 @@ class PersonalHealthDashboardManager(BaseManager):
         text = [description.get('latestDescription', '')
                 for description in detail_event.get('eventDescription', '')]
         full_text = ' '.join(text)
-        description = f'{full_text} (Account:{account_id})'
+        affected_entities = [affected_entity.get("entityValue", "")
+                             for affected_entity in detail_event.get("affectedEntities", [])]
+        if affected_entities:
+            affected_entities_names_str = '\n - '.join(affected_entities)
+            description = f'{full_text} (Account:{account_id})\n\nAffected Entities:\n - {affected_entities_names_str}'
+        else:
+            description = f'{full_text} (Account:{account_id})\n\nAffected Entities: None'
+
         return description
 
     @staticmethod
