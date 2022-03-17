@@ -30,6 +30,18 @@ Please refer to the [SpaceONE Documentations](https://spaceone.org/docs/guides/a
 
 ## Release note
 
+### Ver 1.2
+
+---
+
+Enhancement
+- Apply PersonalHealthDashboard Event
+
+Refactoring
+- Modify affectedEntities type
+- Add account info in discription
+
+
 ### Ver 1.1
 
 ---
@@ -43,4 +55,5 @@ Refactoring
 
 ---
 
-Update for cloud_metrics for aws cloudwatch type
+Enhancement
+- Update for cloud_metrics for aws cloudwatch type
