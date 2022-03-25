@@ -154,14 +154,13 @@ class PersonalHealthDashboardManager(BaseManager):
         occurred_at = self._get_occurred_at(detail_event)
         event_description = self._generate_description(detail_event, account_id)
         event_dict = self._generate_event_dict(event_arn, event_type_category, resource_type, event_description,
-                                               event_type_code,
-                                               occurred_at, message)
+                                               event_type_code, occurred_at, message, account_id)
         events.append(self._evaluate_parsing_data(event_dict))
 
         return events
 
     def _generate_event_dict(self, event_arn, event_type_category, resource_type, event_description, event_type_code,
-                             occurred_at, message):
+                             occurred_at, message, account_id):
         return {
             'event_key': event_arn,
             'event_type': self._get_event_type(),
@@ -171,6 +170,7 @@ class PersonalHealthDashboardManager(BaseManager):
             'title': self._change_string_format(event_type_code),
             'rule': event_type_category,
             'occurred_at': occurred_at,
+            'account': account_id,
             'additional_info': self._get_additional_info(message)
         }
 

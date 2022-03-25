@@ -113,6 +113,7 @@ class EventManager(BaseManager):
         region = message.get('Region', '')
         occurred_at = self._get_occurred_at(message)
         namespace = self._get_namespace(message)
+        account_id = message.get('AWSAccountId', '')
 
         for dimension in triggered_data.get('Dimensions', []):
             event_dict = self._generate_event_dict(message, dimension, triggered_data, namespace, region, occurred_at,
@@ -125,13 +126,14 @@ class EventManager(BaseManager):
 
             for dimension in metric_data.get('Dimensions', []):
                 event_dict = self._generate_event_dict(message, dimension, triggered_data, namespace, region,
-                                                       occurred_at, raw_data)
+                                                       occurred_at, raw_data, account_id)
                 _LOGGER.debug(f'[EventManager] parse Event : {event_dict}')
                 events.append(self._evaluate_parsing_data(event_dict))
 
         return events
 
-    def _generate_event_dict(self, message, dimension, triggered_data, namespace, region, occurred_at, raw_data):
+    def _generate_event_dict(self, message, dimension, triggered_data, namespace, region, occurred_at, raw_data,
+                             account_id):
         return {
             'event_key': self._get_event_key(message, dimension.get('value'), occurred_at),
             'event_type': self._get_event_type(message),
@@ -141,6 +143,7 @@ class EventManager(BaseManager):
             'title': self._remove_code_in_title(raw_data.get('Subject', '')),
             'rule': self._get_rule_for_event(message),
             'occurred_at': occurred_at,
+            'account': account_id,
             'additional_info': self._get_additional_info(message)
         }
 
