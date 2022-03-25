@@ -29,4 +29,6 @@ class EventModel(Model):
     resource = ModelType(ResourceModel)
     rule = StringType(default='')
     occurred_at = DateTimeType()
+    provider = StringType(default='aws')
+    account = StringType(default='')
     additional_info = ModelType(HealthAdditionalInfo)
