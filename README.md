@@ -30,16 +30,30 @@ Please refer to the [SpaceONE Documentations](https://spaceone.org/docs/guides/a
 
 ## Release note
 
+### Ver 1.2.1
+
+---
+
+Enhancement
+- Add provider field and account field (#47)
+- Add affected entities in discription (#46)
+
+Test
+- Add test code about Event Service (#46)
+
+
+
+
 ### Ver 1.2
 
 ---
 
 Enhancement
-- Apply PersonalHealthDashboard Event
+- Apply PersonalHealthDashboard Event (#39, #41)
 
 Refactoring
-- Modify affectedEntities type
-- Add account info in discription
+- Modify affectedEntities type (#44)
+- Add account info in discription(#41)
 
 
 ### Ver 1.1
@@ -47,13 +61,13 @@ Refactoring
 ---
 
 Refactoring   
-- Add remove_code_in_title method
-- Update get_namespace
-- Modify severity_flag
+- Add remove_code_in_title method (#37)
+- Update get_namespace (#35)
+- Modify severity_flag (#27)
 
 ### Ver 1.0
 
 ---
 
 Enhancement
-- Update for cloud_metrics for aws cloudwatch type
+- Update for cloud_metrics for aws cloudwatch type (#29)
