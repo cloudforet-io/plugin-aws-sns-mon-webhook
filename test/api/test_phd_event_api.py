@@ -56,6 +56,19 @@ class TestEvent(TestCase):
                       "UnsubscribeURL": "https://sns.ap-southeast-2.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:ap-southeast-2:257706363616:phd-info-dev:46b11fb0-b7d8-4ae9-934c-2593a89a79fb"}
                   }
 
+        param4 = {"options": {},
+                  "data": {
+                      "MessageId": "4be4288a-ce0d-5066-9059-724de0d178ee",
+                      "UnsubscribeURL": "https://sns.us-east-1.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:us-east-1:1234567890:spaceone-dev-sns-webhook-for-health-disabled:ad959fca-f054-4cca-98f0-36e4db62xxxx",
+                      "Timestamp": "2022-04-06T06:01:00.180Z",
+                      "SignatureVersion": "1",
+                      "Message": "{\"version\":\"0\",\"id\":\"2345b410-2a1b-cc03-468a-92610013xxxx\",\"detail-type\":\"AWS Health Event\",\"source\":\"aws.health\",\"account\":\"1234567890\",\"time\":\"2022-04-06T06:00:53Z\",\"region\":\"us-east-1\",\"resources\":[\"arn:aws:acm:us-east-1:1234567890:certificate/95d1b7f1-5e04-4c70-9a95-73764d4xxxxx\"],\"detail\":{\"eventArn\":\"arn:aws:health:us-east-1::event/ACM/AWS_ACM_RENEWAL_STATE_CHANGE/AWS_ACM_RENEWAL_STATE_CHANGE-837a9d58-dd89-441a-bee9-fea9425565e2\",\"service\":\"ACM\",\"eventTypeCode\":\"AWS_ACM_RENEWAL_STATE_CHANGE\",\"eventTypeCategory\":\"scheduledChange\",\"startTime\":\"Wed, 6 Apr 2022 06:00:53 GMT\",\"endTime\":\"Wed, 6 Apr 2022 06:00:53 GMT\",\"eventDescription\":[{\"language\":\"en_US\",\"latestDescription\":\"This is to notify you that AWS Certificate Manager (ACM) has completed the renewal of an SSL/TLS certificate that certificate includes the primary domain storybook.developer.spaceone.dev and a total of 1 domains.\\\\\\\\n\\\\\\\\nAWS account ID: 1234567890\\\\\\\\nAWS Region name: us-east-1\\\\\\\\nCertificate identifier: arn:aws:acm:us-east-1:1234567890:certificate/95d1b7f1-5e04-4c70-9a95-73764d4xxxxx\\\\\\\\n\\\\\\\\nYour new certificate expires on May 05, 2023 at 23:59:59 UTC. \\\\\\\\nIf you have questions about this process, please use the Support Center at https://console.aws.amazon.com/support to contact AWS Support. If you don’t have an AWS support plan, post a new thread in the AWS Certificate Manager discussion forum at https://forums.aws.amazon.com/forum.jspa?forumID=206\\\\\\\\n\\\\\\\\nThis notification is intended solely for authorized individuals for storybook.developer.spaceone.dev. To express any concerns about this notification or if it has reached you in error, forward it along with a brief explanation of your concern to validation-questions@amazon.com.\\\\\\\\n\"}],\"affectedEntities\":[{\"entityValue\":\"arn:aws:acm:us-east-1:1234567890:certificate/95d1b7f1-5e04-4c70-9a95-73764d4dxxxx\"}]}}",
+                      "Signature": "CDes02KXXXX+C3c43UgAf51M4VCdZtNclXe98vbp74og8shNZoXg2s6RbyrXwmAxznCDfkDJUZnl2QP8vO/Z1atD0RZHfZVUNVZaaCErOHD79QDrQn8VGj75JUEg3XrhFlI7qDJBFm6L+8Qr87CTI5YEZ2NXzXXXXX/7ULHp+DISGQxRyNEYyR9+Fuyi2QXnjqQPm3SXsKFeoZ9nQyRuIAJ0xzGA8ywhKPUk6Vb8DXSJbJwJv+WOKIpQGfK61MTWw5/CmvP9OVYid01PCM/vof/L47xytSgJd4WIzCMoG9mLKD8YahwrjH3NF72nVUjxd6kPXXXXX/NcWIZCosaxeA==",
+                      "TopicArn": "arn:aws:sns:us-east-1:1234567890:spaceone-dev-sns-webhook-for-health-disabled",
+                      "SigningCertURL": "https://sns.us-east-1.amazonaws.com/SimpleNotificationService-7ff5318490ec183fbaddaa2a969abfda.pem",
+                      "Type": "Notification"}
+                  }
+
         parsed_data = self.monitoring.Event.parse({'options': {}, 'data': param.get('data')})
         print_json(parsed_data)
         print()
@@ -66,6 +79,9 @@ class TestEvent(TestCase):
         print_json(parsed_data)
         print()
         parsed_data = self.monitoring.Event.parse({'options': {}, 'data': param3.get('data')})
+        print_json(parsed_data)
+        print()
+        parsed_data = self.monitoring.Event.parse({'options': {}, 'data': param4.get('data')})
         print_json(parsed_data)
         print()
 

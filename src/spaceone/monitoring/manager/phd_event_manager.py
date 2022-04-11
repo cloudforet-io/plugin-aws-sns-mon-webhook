@@ -181,9 +181,10 @@ class PersonalHealthDashboardManager(BaseManager):
 
     @staticmethod
     def _generate_description(detail_event, account_id):
-        text = [description.get('latestDescription', '')
+        text = [description.get('latestDescription', '').replace('\\\\n', '\n')
                 for description in detail_event.get('eventDescription', '')]
         full_text = ' '.join(text)
+
         affected_entities = [affected_entity.get("entityValue", "")
                              for affected_entity in detail_event.get("affectedEntities", [])]
         if affected_entities:
