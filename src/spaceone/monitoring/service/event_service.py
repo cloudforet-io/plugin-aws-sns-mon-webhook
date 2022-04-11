@@ -3,7 +3,7 @@ import requests
 import json
 from spaceone.core.service import *
 
-from spaceone.monitoring.error.event import ERROR_PARSE_EVENT
+from spaceone.monitoring.error.event import ERROR_PARSE_EVENT, ERROR_UNKNOWN_DATA
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -40,9 +40,11 @@ class EventService(BaseService):
                 self._request_subscription_confirm(raw_data.get('SubscribeURL'))
                 return []
             else:
-                execute_manager = self._decision_manager(raw_data)
+                message = self.get_message(raw_data)
+
+                execute_manager = self._decision_manager(message)
                 _manager = self.locator.get_manager(execute_manager)
-                parsed_event = _manager.parse(options, raw_data)
+                parsed_event = _manager.parse(options, message)
                 _LOGGER.debug(f'[EventService: parse] {parsed_event}')
                 return parsed_event
         except Exception as e:
@@ -54,23 +56,28 @@ class EventService(BaseService):
         _LOGGER.debug(f'[Confirm_URL: SubscribeURL] {confirm_url}')
         _LOGGER.debug(f'[AWS SNS: Status]: {r.status_code}, {r.content}')
 
-    @staticmethod
-    def _decision_manager(raw_data):
+    def _decision_manager(self, message):
         execute_manager = ''
-        message = json.loads(raw_data.get("Message", "{}"))
 
-        # cloudwatch manager
-        if "AlarmArn" in message.keys():
-            service = message.get("AlarmArn").split(":")[2]
-            if service == "cloudwatch":
-                execute_manager = "EventManager"
-            return execute_manager
+        try:
+            if "AlarmArn" in message:
+                service = message.get("AlarmArn").split(":")[2]
+                if service == "cloudwatch":
+                    execute_manager = "EventManager"
+                return execute_manager
+            else:
+                service = message.get('source').split(".")[1]
+                if service == 'health':
+                    execute_manager = "PersonalHealthDashboardManager"
+                return execute_manager
+        except Exception:
+            raise ERROR_UNKNOWN_DATA(message)
 
-        # PHD manager
-        elif "source" in message.keys():
-            service = message.get("source").split(".")[1]
-            if service == 'health':
-                execute_manager = "PersonalHealthDashboardManager"
-            return execute_manager
+    @staticmethod
+    def get_message(raw_data):
+        if 'Message' in raw_data:
+            message = json.loads(raw_data.get("Message", "{}"))
         else:
-            raise Exception(f'An unknown data has occurred')
+            message = raw_data
+
+        return message

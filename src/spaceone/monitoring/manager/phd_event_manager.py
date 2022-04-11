@@ -13,22 +13,10 @@ class PersonalHealthDashboardManager(BaseManager):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def parse(self, options, raw_data):
-        """ --- RAW_DATA Sample ---
-        "TopicArn": "arn:xxxxx",
-        "Subject": "ALARM: ....",
-        "SigningCertURL": "https://sns..../...pem",
-        "MessageId": "838a70d8-d3c7-5d0c-a03a-29789bc46b66",
-        "Message": "{RAW_JSON_MESSAGE}",
-        "Timestamp": "2021-08-25T13:29:39.389Z",
-        "SignatureVersion": "1",
-        "Type": "Notification",
-        "Signature": "ht4kn+........==",
-        "UnsubscribeURL": "https://sns......"
-        """
-        return self._generate_events(self._get_json_message(raw_data.get('Message', {})), raw_data)
+    def parse(self, options, message):
+        return self._generate_events(message)
 
-    def _generate_events(self, message, raw_data):
+    def _generate_events(self, message):
         events = []
 
         """ MESSAGE Sample1
