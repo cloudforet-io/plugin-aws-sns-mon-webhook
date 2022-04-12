@@ -13,5 +13,5 @@ class ERROR_GET_JSON_MESSAGE(ERROR_BASE):
     _message = 'Failed to get json (raw_json)'
 
 
-class ERROR_UNKNOWN_DATA(ERROR_BASE):
-    _message = 'An unknown data has occurred (message = {message})'
+class ERROR_NOT_DECISION_MANAGER(ERROR_BASE):
+    _message = 'The received data type is a data type that is not currently supported.'

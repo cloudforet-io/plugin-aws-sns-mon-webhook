@@ -3,7 +3,7 @@ import requests
 import json
 from spaceone.core.service import *
 
-from spaceone.monitoring.error.event import ERROR_PARSE_EVENT, ERROR_UNKNOWN_DATA
+from spaceone.monitoring.error.event import ERROR_PARSE_EVENT, ERROR_NOT_DECISION_MANAGER
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -44,6 +44,10 @@ class EventService(BaseService):
 
                 execute_manager = self._decision_manager(message)
                 _manager = self.locator.get_manager(execute_manager)
+
+                if execute_manager == 'EventManager':
+                    message['subject'] = raw_data.get('Subject', '')
+
                 parsed_event = _manager.parse(options, message)
                 _LOGGER.debug(f'[EventService: parse] {parsed_event}')
                 return parsed_event
@@ -59,19 +63,16 @@ class EventService(BaseService):
     def _decision_manager(self, message):
         execute_manager = ''
 
-        try:
-            if "AlarmArn" in message:
-                service = message.get("AlarmArn").split(":")[2]
-                if service == "cloudwatch":
-                    execute_manager = "EventManager"
-                return execute_manager
-            else:
-                service = message.get('source').split(".")[1]
-                if service == 'health':
-                    execute_manager = "PersonalHealthDashboardManager"
-                return execute_manager
-        except Exception:
-            raise ERROR_UNKNOWN_DATA(message)
+        if "AlarmArn" in message:
+            service = message.get("AlarmArn").split(":")[2]
+            if service == "cloudwatch":
+                execute_manager = "EventManager"
+            return execute_manager
+        elif message.get('source').split(".")[1] == 'health':
+            execute_manager = "PersonalHealthDashboardManager"
+            return execute_manager
+        else:
+            raise ERROR_NOT_DECISION_MANAGER()
 
     @staticmethod
     def get_message(raw_data):
