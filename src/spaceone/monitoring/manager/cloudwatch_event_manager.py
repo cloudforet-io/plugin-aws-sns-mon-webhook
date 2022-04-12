@@ -13,22 +13,10 @@ class EventManager(BaseManager):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def parse(self, options, raw_data):
-        """ --- RAW_DATA Sample ---
-        "TopicArn": "arn:xxxxx",
-        "Subject": "ALARM: ....",
-        "SigningCertURL": "https://sns..../...pem",
-        "MessageId": "838a70d8-d3c7-5d0c-a03a-29789bc46b66",
-        "Message": "{RAW_JSON_MESSAGE}",
-        "Timestamp": "2021-08-25T13:29:39.389Z",
-        "SignatureVersion": "1",
-        "Type": "Notification",
-        "Signature": "ht4kn+........==",
-        "UnsubscribeURL": "https://sns......"
-        """
-        return self._generate_events(self._get_json_message(raw_data.get('Message', {})), raw_data)
+    def parse(self, options, message):
+        return self._generate_events(message)
 
-    def _generate_events(self, message, raw_data):
+    def _generate_events(self, message):
         events = []
 
         """ MESSAGE Sample1
@@ -116,31 +104,28 @@ class EventManager(BaseManager):
         account_id = message.get('AWSAccountId', '')
 
         for dimension in triggered_data.get('Dimensions', []):
-            event_dict = self._generate_event_dict(message, dimension, triggered_data, namespace, region, occurred_at,
-                                                   raw_data)
+            event_dict = self._generate_event_dict(message, dimension, namespace, region, occurred_at, account_id)
             _LOGGER.debug(f'[EventManager] parse Event : {event_dict}')
             events.append(self._evaluate_parsing_data(event_dict))
 
         for metric in triggered_data.get('Metrics', []):
             metric_data = metric.get('MetricStat', {}).get('Metric', {})
-
             for dimension in metric_data.get('Dimensions', []):
-                event_dict = self._generate_event_dict(message, dimension, triggered_data, namespace, region,
-                                                       occurred_at, raw_data, account_id)
+                event_dict = self._generate_event_dict(message, dimension, namespace, region,
+                                                       occurred_at, account_id)
                 _LOGGER.debug(f'[EventManager] parse Event : {event_dict}')
                 events.append(self._evaluate_parsing_data(event_dict))
 
         return events
 
-    def _generate_event_dict(self, message, dimension, triggered_data, namespace, region, occurred_at, raw_data,
-                             account_id):
+    def _generate_event_dict(self, message, dimension, namespace, region, occurred_at, account_id):
         return {
             'event_key': self._get_event_key(message, dimension.get('value'), occurred_at),
             'event_type': self._get_event_type(message),
             'severity': self._get_severity(message),
             'resource': self._get_resource_for_event(dimension, namespace, region),
             'description': message.get('NewStateReason', ''),
-            'title': self._remove_code_in_title(raw_data.get('Subject', '')),
+            'title': self._remove_code_in_title(message.get('Subject', '')),
             'rule': self._get_rule_for_event(message),
             'occurred_at': occurred_at,
             'account': account_id,
@@ -277,10 +262,6 @@ class EventManager(BaseManager):
     def _get_event_type(message):
         sns_event_state = message.get('NewStateValue', 'INSUFFICIENT_DATA')
         return 'RECOVERY' if sns_event_state == 'OK' else 'ALERT'
-
-    @staticmethod
-    def _get_json_message(json_raw_data):
-        return json.loads(json_raw_data)
 
     @staticmethod
     def _evaluate_parsing_data(event_data):

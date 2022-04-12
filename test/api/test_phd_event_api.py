@@ -11,7 +11,6 @@ _LOGGER = logging.getLogger(__name__)
 
 class TestEvent(TestCase):
     def test_parse(self):
-
         param = {"options": {},
                  "data": {
                      "MessageId": "3f78eee9-6691-51be-b77e-b4603c34d486", "Timestamp": "2022-02-18T08:27:17.407Z",
@@ -69,6 +68,37 @@ class TestEvent(TestCase):
                       "Type": "Notification"}
                   }
 
+        # None-primitive type
+        param5 = {
+            "options": {},
+            "data": {
+                "detail-type": "AWS Health Event",
+                "region": "us-east-1",
+                "detail": {
+                    "startTime": "Wed, 6 Apr 2022 06:00:53 GMT",
+                    "eventArn": "arn:aws:health:us-east-1::event/ACM/AWS_ACM_RENEWAL_STATE_CHANGE/AWS_ACM_RENEWAL_STATE_CHANGE-837a9d58-dd89-441a-bee9-fea9425565e2",
+                    "endTime": "Wed, 6 Apr 2022 06:00:53 GMT",
+                    "affectedEntities": [{
+                        "entityValue": "arn:aws:acm:us-east-1:257706363616:certificate/95d1b7f1-5e04-4c70-9a95-73764d4d0fc5"}],
+                    "service": "ACM",
+                    "eventDescription": [{
+                        "latestDescription": "This is to notify you that AWS Certificate Manager (ACM) has completed the renewal of an SSL/TLS certificate that certificate includes the primary domain storybook.developer.spaceone.dev and a total of 1 domains.\\\\n\\\\nAWS account ID: 257706363616\\\\nAWS Region name: us-east-1\\\\nCertificate identifier: arn:aws:acm:us-east-1:257706363616:certificate/95d1b7f1-5e04-4c70-9a95-73764d4d0fc5\\\\n\\\\nYour new certificate expires on May 05, 2023 at 23:59:59 UTC. \\\\nIf you have questions about this process, please use the Support Center at https://console.aws.amazon.com/support to contact AWS Support. If you don\u2019t have an AWS support plan, post a new thread in the AWS Certificate Manager discussion forum at https://forums.aws.amazon.com/forum.jspa?forumID=206\\\\n\\\\nThis notification is intended solely for authorized individuals for storybook.developer.spaceone.dev. To express any concerns about this notification or if it has reached you in error, forward it along with a brief explanation of your concern to validation-questions@amazon.com.\\\\n",
+                        "language": "en_US"
+                    }],
+                    "eventTypeCategory": "scheduledChange",
+                    "eventTypeCode": "AWS_ACM_RENEWAL_STATE_CHANGE"
+                },
+                "time": "2022-04-06T06:00:53Z",
+                "source": "aws.health",
+                "version": "0",
+                "id": "2345b410-2a1b-cc03-468a-92610013fea5",
+                "resources": [
+                    "arn:aws:acm:us-east-1:257706363616:certificate/95d1b7f1-5e04-4c70-9a95-73764d4d0fc5"
+                ],
+                "account": "257706363616"
+            }
+        }
+
         parsed_data = self.monitoring.Event.parse({'options': {}, 'data': param.get('data')})
         print_json(parsed_data)
         print()
@@ -82,6 +112,9 @@ class TestEvent(TestCase):
         print_json(parsed_data)
         print()
         parsed_data = self.monitoring.Event.parse({'options': {}, 'data': param4.get('data')})
+        print_json(parsed_data)
+        print()
+        parsed_data = self.monitoring.Event.parse({'options': {}, 'data': param5.get('data')})
         print_json(parsed_data)
         print()
 
