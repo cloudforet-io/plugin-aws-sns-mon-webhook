@@ -98,6 +98,40 @@ class TestEvent(TestCase):
                 "account": "257706363616"
             }
         }
+        param6 = {
+            "options": {},
+            "data": {
+                "detail": {
+                    "affectedEntities": [
+                        {
+                            "entityValue": "arn:aws:iam::257706363616:user/jihyung.song"
+                        }
+                    ],
+                    "startTime": "Thu, 21 Apr 2022 00:00:00 GMT",
+                    "eventTypeCode": "AWS_CLOUDSHELL_PERSISTENCE_EXPIRING",
+                    "eventArn": "arn:aws:health:us-east-1::event/CLOUDSHELL/AWS_CLOUDSHELL_PERSISTENCE_EXPIRING/AWS_CLOUDSHELL_PERSISTENCE_EXPIRING_v20220208_257706363616_us-east-1_23-4-2022",
+                    "service": "CLOUDSHELL",
+                    "eventDescription": [
+                        {
+                            "latestDescription": "Some users of this account haven't used AWS CloudShell for over 110 days in the us-east-1 Region. On April 23, 2022 we're scheduled to delete the CloudShell home directory and data of inactive users in the us-east-1 Region.\\n\\nYou can see the list of affected users in the Affected Resources tab. To stop this deletion, users that are listed in the Affected Resources tab need to launch CloudShell https://us-east-1.console.aws.amazon.com/cloudshell/home?region=us-east-1# in the us-east-1 Region.\\n\\nImportant: AWS CloudShell offers a separate home directory per AWS Region, so the deletion of the home directory will occur only in the AWS Region that hasn't been used for your CloudShell sessions in over 120 days. If you regularly use CloudShell in other AWS Regions, those separate home directories will not be affected.\\n\\nVisit https://docs.aws.amazon.com/cloudshell/latest/userguide/limits.html#persistent-storage-limitations if you'd like more information on persistent storage in AWS CloudShell.",
+                            "language": "en_US"
+                        }
+                    ],
+                    "endTime": "Sat, 23 Apr 2022 21:46:18 GMT",
+                    "eventTypeCategory": "scheduledChange"
+                },
+                "region": "us-east-1",
+                "id": "3369231b-01e5-5063-33d4-941d984ec455",
+                "detail-type": "AWS Health Event",
+                "resources": [
+                    "arn:aws:iam::257706363616:user/jihyung.song"
+                ],
+                "version": "0",
+                "account": "257706363616",
+                "time": "2022-04-21T00:00:00Z",
+                "source": "aws.health"
+            }
+        }
 
         parsed_data = self.monitoring.Event.parse({'options': {}, 'data': param.get('data')})
         print_json(parsed_data)
@@ -115,6 +149,9 @@ class TestEvent(TestCase):
         print_json(parsed_data)
         print()
         parsed_data = self.monitoring.Event.parse({'options': {}, 'data': param5.get('data')})
+        print_json(parsed_data)
+        print()
+        parsed_data = self.monitoring.Event.parse({'options': {}, 'data': param6.get('data')})
         print_json(parsed_data)
         print()
 
