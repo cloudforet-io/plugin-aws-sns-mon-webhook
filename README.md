@@ -37,6 +37,15 @@ Please refer to the [SpaceONE Documentations](https://spaceone.org/docs/guides/a
 
 ## Release note
 
+
+### Ver 1.2.2
+
+---
+
+Enhancement
+- Apply regardless of primitive type about phd events ([#50](https://github.com/spaceone-dev/plugin-aws-sns-mon-webhook/issues/50))
+- change to receive paragraph-delimited scription ([#48](https://github.com/spaceone-dev/plugin-aws-sns-mon-webhook/issues/48))
+
 ### Ver 1.2.1
 
 ---
