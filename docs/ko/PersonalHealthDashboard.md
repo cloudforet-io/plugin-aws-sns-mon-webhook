@@ -4,7 +4,7 @@
 AWS EventBridge > AWS SNS > AWS SNS Webhook 순으로 데이터가 전달됩니다.  
 서로 의존 관계이기 때문에 설정은 **역순**으로 진행합니다.
 
-<img src="PersonalHealthDashboard-img/flow-for-phd(h2)-1.png">
+<img src="PersonalHealthDashboard-img/flow-for-phd(h2)-1.png" width="60%" height="60%">
 
 따라서 **PHD 이벤트**를 받기 위해 PHD pipeline 구축은 다음과 같습니다.
 
@@ -23,20 +23,20 @@ AWS EventBridge > AWS SNS > AWS SNS Webhook 순으로 데이터가 전달됩니�
 
 (1) [프로젝트] > [얼럿] > [얼럿 활성화] 버튼을 클릭합니다.
 
-<img src="PersonalHealthDashboard-img/aws-sns-webhook-plugin-setting(h2)-1.png">
+<img src="PersonalHealthDashboard-img/aws-sns-webhook-plugin-setting(h2)-1.png" width="80%" height="80%">
 
 (2) [웹훅] > [ + 추가] 버튼을 클릭하여 사용할 웹훅의 목록을 불러옵니다.
 
-<img src="PersonalHealthDashboard-img/aws-sns-webhook-plugin-setting(h2)-2.png">
+<img src="PersonalHealthDashboard-img/aws-sns-webhook-plugin-setting(h2)-2.png" width="80%" height="80%">
 
 (3) 웹훅 [이름]을 작성하고 [AWS SNS Webhook]을 선택한 후 [확인] 버튼을 클릭해 웹훅을 생성합니다.
 
-<img src="PersonalHealthDashboard-img/aws-sns-webhook-plugin-setting(h2)-3.png">
+<img src="PersonalHealthDashboard-img/aws-sns-webhook-plugin-setting(h2)-3.png" width="50%" height="50%">
 
 (4) 생성된 AWS SNS Webhook을 확인하고 `Webhook URL`을 복사합니다.  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;복사된 URL은 [2. AWS SNS의 Topic과 Subscription 설정](./PersonalHealthDashboard.md/#2-aws-sns의-topic과-subscription-설정)에서 Subscrtion 타겟을 설정하는데 사용됩니다.
 
-<img src="PersonalHealthDashboard-img/aws-sns-webhook-plugin-setting(h2)-4.png">
+<img src="PersonalHealthDashboard-img/aws-sns-webhook-plugin-setting(h2)-4.png" width="80%" height="80%">
 
 <br>
 <br>
@@ -56,8 +56,8 @@ Topic 설정을 통해 AWS EventBridge로부터 PHD event를 수신하며 Subscr
 
 AWS SNS 설정을 위해 아래 순서에 맞게 진행합니다.
 
-[2.1 AWS SNS의 Topic 설정](./PersonalHealthDashboard.md/#2.1-aws-sns의-topic-설정)  
-[2.2 AWS SNS의 Subscription 설정](./PersonalHealthDashboard.md/#2.2-aws-sns의-subscription-설정)
+[2.1 AWS SNS의 Topic 설정](./PersonalHealthDashboard.md/#21-aws-sns의-topic-설정)  
+[2.2 AWS SNS의 Subscription 설정](./PersonalHealthDashboard.md/#22-aws-sns의-subscription-설정)
 
 <br>
 
@@ -65,19 +65,19 @@ AWS SNS 설정을 위해 아래 순서에 맞게 진행합니다.
 
 (1) AWS 콘솔 로그인 > SNS 검색 > Simple Notification Service을 클릭합니다.
 
-<img src="PersonalHealthDashboard-img/aws-sns-topic-setting(h3)-1.png">
+<img src="PersonalHealthDashboard-img/aws-sns-topic-setting(h3)-1.png" width="80%" height="80%">
 
 (2) [주제]  > [주제 생성] 버튼을 클릭합니다.
 
-<img src="PersonalHealthDashboard-img/aws-sns-topic-setting(h3)-2.png">
+<img src="PersonalHealthDashboard-img/aws-sns-topic-setting(h3)-2.png" width="80%" height="80%">
 
 (3) 유형은 [표준]을 선택하고 [이름]과 [표시 이름]을 작성한 후 하단의 [생성] 버튼을 클릭합니다.
 
-<img src="PersonalHealthDashboard-img/aws-sns-topic-setting(h3)-3.png">
+<img src="PersonalHealthDashboard-img/aws-sns-topic-setting(h3)-3.png" width="80%" height="80%">
 
 (4) 주제가 정상적으로 생성되었는 지 확인합니다.
 
-<img src="PersonalHealthDashboard-img/aws-sns-topic-setting(h3)-4.png">
+<img src="PersonalHealthDashboard-img/aws-sns-topic-setting(h3)-4.png" width="80%" height="80%">
 
 <br>
 
@@ -91,19 +91,19 @@ AWS SNS 설정을 위해 아래 순서에 맞게 진행합니다.
 
 (1) [구독 생성] 버튼을 클릭 합니다.
 
-<img src="PersonalHealthDashboard-img/aws-sns-subscription-setting(h3)-1.png">
+<img src="PersonalHealthDashboard-img/aws-sns-subscription-setting(h3)-1.png" width="80%" height="80%">
 
 (2) 먼저, [주제 ARN]은 생성된 주제를 선택합니다.  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[프로토콜]은 Webhook URL을 받기 위해 HTTPS를 선택합니다.  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[엔드포인트]는 [1. AWS SNS Webhook 플러그인 설정](#1-aws-sns-webhook-플러그인-설정)에서 획득한 `Webhook URL` 을 입력합니다.  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;이후 [구독 생성] 버튼을 클릭 합니다.
 
-<img src="PersonalHealthDashboard-img/aws-sns-subscription-setting(h3)-2.png">
+<img src="PersonalHealthDashboard-img/aws-sns-subscription-setting(h3)-2.png" width="80%" height="80%">
 
 (3) 구독이 정상적으로 생성되고 클라우드포레의 AWS SNS Webhook 플러그인과 정상적으로 연결 되었다면  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[상태]가 확인됨 으로 출력됨을 확인할 수 있습니다.
 
-<img src="PersonalHealthDashboard-img/aws-sns-subscription-setting(h3)-3.png">
+<img src="PersonalHealthDashboard-img/aws-sns-subscription-setting(h3)-3.png" width="80%" height="80%">
 
 다음으로 AWS EventBridge 설정을 통해 생성한 주제로 PHD 이벤트를 받을 수 있도록 설정합니다.
 
@@ -116,7 +116,8 @@ AWS SNS 설정을 위해 아래 순서에 맞게 진행합니다.
 ### 개요
 PHD(Health) 이벤트가 발생하면 AWS EventBridge로 PHD 이벤트를 수신할 수 있습니다.  
 AWS EventBridge 설정 시 주의할 점은 PHD 이벤트를 받으려는 **각 리전(Region)마다 이벤트룰(EventRule)을 설정**합니다.  
-그리고 Global 리전에 대한 PHD event(리전에 상관없는 PHD 이벤트)를 받기 위해서는 버지니아 북부(**us-east-1)에 이벤트 브릿지(EventBridge)를 설정**합니다. 
+그리고 Global 리전에 대한 PHD event(리전에 상관없는 PHD 이벤트)를 받기 위해서는.  
+버지니아 북부(**us-east-1)에 이벤트 브릿지(EventBridge)를 설정**합니다. 
 
 또한, 각 리전 마다 생성된 이벤트 브릿지를 버지니아 북부(us-east-1)로 라우팅 해주기 위해 이벤트 버스(EventBus)**를 사용**합니다.  
 이렇게 설정함으로써 AWS EventBridge의 이벤트룰 N개, AWS SNS 1개 구조를 통해 다수 리전의 Health 이벤트를 수신할 수 있습니다.
@@ -138,14 +139,14 @@ AWS EventBridge 설정 시 주의할 점은 PHD 이벤트를 받으려는 **각 
 
 이때, 다른 2종류의 타겟 설정이 필요합니다.   
 이벤트룰(us-east-1)은 이미 생성된 SNS를 타겟으로합니다.  
-이벤트룰(ap-northeast-2)의 타겟은 SNS가 아닌 버지니아 북부(us-east-1) 이벤트 버스의 기본값입니다.   
-마찬가지로 EventRule(ap-southeast-2)의 타겟은 SNS가 아닌 버지니아 북부(us-east-1) 이벤트 버스의 기본값입니다.
+이벤트룰(ap-northeast-2)의 타겟은 SNS가 아닌 버지니아 북부(us-east-1) 이벤트 버스의 default입니다.   
+마찬가지로 EventRule(ap-southeast-2)의 타겟은 SNS가 아닌 버지니아 북부(us-east-1) 이벤트 버스의 default입니다.
 
 다음의 순서로 설정을 진행합니다.
 
 1. 이벤트룰(us-east-1) 생성 후 AWS SNS를 타겟으로 설정  
-2. 이벤트룰(ap-northeast-2) 생성 후 버지니아 북부(us-east-1) 이벤트 버스의 기본값을 타겟으로 설정  
-3. 이벤트룰(ap-southeast-2) 생성 후 버지니아 북부(us-east-1) 이벤트 버스의 기본값를 타겟으로 설정
+2. 이벤트룰(ap-northeast-2) 생성 후 버지니아 북부(us-east-1) 이벤트 버스의 default를 타겟으로 설정  
+3. 이벤트룰(ap-southeast-2) 생성 후 버지니아 북부(us-east-1) 이벤트 버스의 default를 타겟으로 설정
 
 실제 서울의 EC2에 대해 Health 이벤트가 발생하면 이벤트룰(ap-northeast-2)에서 최초 수신 후    
 버지니아 북부(us-east-1) 이벤트 버스에 전달이 되며 이벤트룰(us-east-1)에서 수신하게 됩니다.  
@@ -153,8 +154,8 @@ AWS EventBridge 설정 시 주의할 점은 PHD 이벤트를 받으려는 **각 
 ```
 
 이제, 단계별로 EventBridge의 EventRule 설정방법을 알아보도록 하겠습니다.  
-[3.1 AWS EventBridge Global 설정](./PersonalHealthDashboard.md/#3.1-aws-eventbridge-global-설정)  
-[3.2 AWS EventBridge Non-Global 설정](./PersonalHealthDashboard.md/3.2-aws-eventbridge-non-global-설정)
+[3.1 AWS EventBridge Global 설정](./PersonalHealthDashboard.md/#31-aws-eventbridge-global-설정)  
+[3.2 AWS EventBridge Non-Global 설정](./PersonalHealthDashboard.md/#32-aws-eventbridge-non-global-설정)
 
 <br>
 
@@ -162,34 +163,34 @@ AWS EventBridge 설정 시 주의할 점은 PHD 이벤트를 받으려는 **각 
 
 (1) AWS 콘솔 로그인 > EventBridge 검색 > [Amazon EventBridge] 클릭 합니다.
 
-<img src="PersonalHealthDashboard-img/aws-eventbridge-global-setting(h3)-1.png">
+<img src="PersonalHealthDashboard-img/aws-eventbridge-global-setting(h3)-1.png" width="80%" height="80%">
 
 (2) [규칙] > [규칙 생성] 버튼을 클릭합니다.
 
-<img src="PersonalHealthDashboard-img/aws-eventbridge-global-setting(h3)-2.png">
+<img src="PersonalHealthDashboard-img/aws-eventbridge-global-setting(h3)-2.png" width="80%" height="80%">
 
 (3) [이름], [설명](선택 사항)을 작성하고 [다음] 버튼을 클릭합니다.
 
-<img src="PersonalHealthDashboard-img/aws-eventbridge-global-setting(h3)-3.png">
+<img src="PersonalHealthDashboard-img/aws-eventbridge-global-setting(h3)-3.png" width="80%" height="80%">
 
 (3-1) [이벤트 소스]는 [AWS 이벤트 또는 EventBridge 파트너 이벤트]를 선택합니다.    
 (3-2) [이벤트 패턴]에서 [이벤트 소스]는 `AWS 서비스` , [AWS 서비스]는 `Health`  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;그리고 [이벤트 유형]은 `Specific Health Abuse Events` 를 선택합니다.
 
-<img src="PersonalHealthDashboard-img/aws-eventbridge-global-setting(h3)-4.png">
+<img src="PersonalHealthDashboard-img/aws-eventbridge-global-setting(h3)-4.png" width="80%" height="80%">
 
 (3-3) [대상 선택]에서 [대상 유형]은 AWS 서비스 , [대상 선택]은 SNS 주제를 선택합니다.  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;그리고 [주제]는 2.1 AWS SNS의 Topic 설정(링크)에서 설정한 CloudForet-SNS-Topic을 선택합니다.
 
-<img src="PersonalHealthDashboard-img/aws-eventbridge-global-setting(h3)-5.png">
+<img src="PersonalHealthDashboard-img/aws-eventbridge-global-setting(h3)-5.png" width="80%" height="80%">
 
 (3-4) [태그 구성]은 사용할 태그가 있다면 추가할 수 있습니다.
 
-<img src="PersonalHealthDashboard-img/aws-eventbridge-global-setting(h3)-6.png">
+<img src="PersonalHealthDashboard-img/aws-eventbridge-global-setting(h3)-6.png" width="80%" height="80%">
 
 (3-5) [검토 및 생성]에서 설정한 모든 사항을 확인할 수 있습니다. 이상이 없다면 [규칙 생성] 버튼을 클릭 합니다.
 
-<img src="PersonalHealthDashboard-img/aws-eventbridge-global-setting(h3)-7.png">
+<img src="PersonalHealthDashboard-img/aws-eventbridge-global-setting(h3)-7.png" width="80%" height="80%">
 
 Global PHD 이벤트를 받기 위한 이벤트브릿지 설정은 모두 완료되었습니다.
 
@@ -201,34 +202,34 @@ Global PHD 이벤트를 받기 위한 이벤트브릿지 설정은 모두 완료
 
 (1) 리전을 [시드니]로 변경하고 [규칙] > [규칙 생성] 버튼을 클릭 합니다.
 
-<img src="PersonalHealthDashboard-img/aws-eventbridge-non-global-setting(h3)-1.png">
+<img src="PersonalHealthDashboard-img/aws-eventbridge-non-global-setting(h3)-1.png" width="80%" height="80%">
 
 (2) [이름], [설명](선택 사항)을 작성하고 [다음] 버튼을 클릭합니다.
 
-<img src="PersonalHealthDashboard-img/aws-eventbridge-non-global-setting(h3)-2.png">
+<img src="PersonalHealthDashboard-img/aws-eventbridge-non-global-setting(h3)-2.png" width="80%" height="80%">
 
 (3-1) [이벤트 소스]는 [AWS 이벤트 또는 EventBridge 파트너 이벤트]를 선택합니다.  
 (3-2) [이벤트 패턴]에서 [이벤트 소스]는 `AWS 서비스` , [AWS 서비스]는 `Health`  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;그리고 [이벤트 유형]은 `특정 상태 이벤트` 를 선택합니다.
 
-<img src="PersonalHealthDashboard-img/aws-eventbridge-non-global-setting(h3)-3.png">
+<img src="PersonalHealthDashboard-img/aws-eventbridge-non-global-setting(h3)-3.png" width="80%" height="80%">
 
 (3-3) [대상 선택]에서 [대상 유형]은 `EventBridge 이벤트 버스` 를 선택 합니다.  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[대상 유형]은 `다른 계정 또는 리전의 이벤트 버스`를 선택 합니다.  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[대상 이벤트 버스]는 **버지니아 북부(us-east-1) 기본(default) 이벤트 버스의 ARN을** 기입 합니다.  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;버지니아 북부(us-east-1) 이벤트 버스의 ARN은 아래 그림을 참고 하십시오.
 
-<img src="PersonalHealthDashboard-img/aws-eventbridge-non-global-setting(h3)-4.png">
+<img src="PersonalHealthDashboard-img/aws-eventbridge-non-global-setting(h3)-4.png" width="80%" height="80%">
 
-<img src="PersonalHealthDashboard-img/aws-eventbridge-non-global-setting(h3)-5.png">
+<img src="PersonalHealthDashboard-img/aws-eventbridge-non-global-setting(h3)-5.png" width="80%" height="80%">
 
 (3-4) [태그 구성]은 사용할 태그가 있다면 추가할 수 있습니다. 
 
-<img src="PersonalHealthDashboard-img/aws-eventbridge-non-global-setting(h3)-6.png">
+<img src="PersonalHealthDashboard-img/aws-eventbridge-non-global-setting(h3)-6.png" width="80%" height="80%">
 
 (3-5) [검토 및 생성]에서 설정한 모든 사항을 확인할 수 있습니다. 이상이 없다면 [규칙 생성] 버튼을 클릭 합니다.
 
-<img src="PersonalHealthDashboard-img/aws-eventbridge-non-global-setting(h3)-7.png">
+<img src="PersonalHealthDashboard-img/aws-eventbridge-non-global-setting(h3)-7.png" width="80%" height="80%">
 
 Global PHD 이벤트를 받기 위한 설정 그리고 Non-Global PHD 이벤트를 받기 위한 설정 모두 알아 보았습니다.  
 위의 가이드 절차에 맞춰 진행하면 Global PHD 이벤트와 시드니에서 발생하는 PHD 이벤트를 수신할 수 있는 파이프라인 구축이 완료 되었습니다.
