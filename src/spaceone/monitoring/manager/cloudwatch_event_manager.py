@@ -124,8 +124,8 @@ class EventManager(BaseManager):
             'severity': self._get_severity(message),
             'resource': self._get_resource_for_event(dimension, namespace, region),
             'description': message.get('NewStateReason', ''),
-            'title': self._remove_code_in_title(message.get('Subject', '')),
-            'rule': self._get_rule_for_event(message),
+            'title': message.get('AlarmName', ''),
+            'rule': message.get('AlarmName', ''),
             'occurred_at': occurred_at,
             'account': account_id,
             'additional_info': self._get_additional_info(message)
@@ -151,15 +151,6 @@ class EventManager(BaseManager):
             return datetime.now()
 
     @staticmethod
-    def _remove_code_in_title(title):
-        alert_codes = ['ALARM: ', 'OK: ', 'ALERT: ']
-        for alert_code in alert_codes:
-            if alert_code in title:
-                return title.replace(alert_code, '')
-
-        return title
-
-    @staticmethod
     def _get_event_key(message, resource_id, occurred_at):
         """
         Generate the Index Key through Hashing
@@ -175,12 +166,6 @@ class EventManager(BaseManager):
         md5_hash = hash_object.hexdigest()
 
         return md5_hash
-
-    @staticmethod
-    def _get_rule_for_event(message):
-        rule = ''
-
-        return rule
 
     @staticmethod
     def _get_resource_for_event_from_metric(dimension, event_resource, triggered_data, region):
