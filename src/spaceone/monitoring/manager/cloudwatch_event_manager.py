@@ -115,7 +115,6 @@ class EventManager(BaseManager):
                                                        occurred_at, account_id)
                 _LOGGER.debug(f'[EventManager] parse Event : {event_dict}')
                 events.append(self._evaluate_parsing_data(event_dict))
-
         return events
 
     def _generate_event_dict(self, message, dimension, namespace, region, occurred_at, account_id):
@@ -229,11 +228,29 @@ class EventManager(BaseManager):
     @staticmethod
     def _get_additional_info(message):
         additional_info = {}
-        additional_info_key = ['OldStateValue', 'AlarmName', 'Region', 'AWSAccountId', 'AlarmDescription', 'AlarmArn']
+        additional_info_key = ['OldStateValue', 'AlarmName', 'Region', 'AWSAccountId', 'AlarmDescription', 'AlarmArn',
+                               'Trigger']
 
         for _key in message:
             if _key in additional_info_key and message.get(_key):
-                additional_info.update({_key: message.get(_key)})
+                if _key == 'Trigger':
+                    metric_name = ''
+                    namespace = ''
+                    if 'Metrics' in message[_key]:
+                        for metric in message[_key]['Metrics']:
+                            if 'MetricStat' in metric:
+                                metric_info = metric['MetricStat']['Metric']
+                                metric_name = metric_info.get('MetricName', '')
+                                namespace = metric_info.get('Namespace', '')
+                    if 'MetricName' in message[_key]:
+                        metric_name = message[_key].get('MetricName', '')
+                    if 'Namespace' in message[_key]:
+                        namespace = message[_key].get('Namespace', '')
+                    if metric_name and namespace:
+                        additional_info.update({'MetricName': metric_name,
+                                                'Namespace': namespace})
+                else:
+                    additional_info.update({_key: message.get(_key)})
 
         return additional_info
 
