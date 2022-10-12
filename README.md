@@ -37,6 +37,16 @@ Please refer to the [SpaceONE Documentations](https://spaceone.org/docs/guides/a
 
 ## Release note
 
+### Ver 1.2.3
+
+---
+
+Enhancement
+- add MetricName and Namespace field in additional_info of cloudwatch ([#1](https://github.com/cloudforet-io/plugin-aws-sns-mon-webhook/issues/1))
+
+Bugfix
+- fix title and rule field in event of cloudwatch ([#1](https://github.com/cloudforet-io/plugin-aws-sns-mon-webhook/issues/1))
+
 
 ### Ver 1.2.2
 
