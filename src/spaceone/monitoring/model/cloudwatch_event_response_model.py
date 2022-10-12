@@ -10,6 +10,8 @@ class CloudWatchAdditionalInfo(Model):
     AlarmName = StringType()
     OldStateValue = StringType()
     Region = StringType()
+    MetricName = StringType()
+    Namespace = StringType()
 
 
 class ResourceModel(Model):
