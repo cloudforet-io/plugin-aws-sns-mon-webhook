@@ -21,22 +21,35 @@ AWS EventBridge > AWS SNS > AWS SNS Webhook 순으로 데이터가 전달됩니�
 
 클라우드포레 콘솔을 통해 PHD 알림을 받을 프로젝트에 AWS SNS Webhook Plugin을 설정합니다.
 
-(1) [프로젝트] > [얼럿] > [얼럿 활성화] 버튼을 클릭합니다.
+(1) [얼럿 매니저] > [서비스] > [생성] 버튼을 클릭합니다.
 
 <img src="PersonalHealthDashboard-img/aws-sns-webhook-plugin-setting(h2)-1.png" width="80%" height="80%">
 
-(2) [웹훅] > [ + 추가] 버튼을 클릭하여 사용할 웹훅의 목록을 불러옵니다.
+(2) 서비스 [이름], [키], [멤버], [설명]을 작성하고 [생성] 버튼을 클릭해 새로운 얼럿 매니저 서비스를 생성합니다.
 
 <img src="PersonalHealthDashboard-img/aws-sns-webhook-plugin-setting(h2)-2.png" width="80%" height="80%">
 
-(3) 웹훅 [이름]을 작성하고 [AWS SNS Webhook]을 선택한 후 [확인] 버튼을 클릭해 웹훅을 생성합니다.
+(3) 웹훅 [AWS SNS]을 선택한 후 [선택하기] 버튼을 클릭합니다.
 
-<img src="PersonalHealthDashboard-img/aws-sns-webhook-plugin-setting(h2)-3.png" width="50%" height="50%">
+<img src="PersonalHealthDashboard-img/aws-sns-webhook-plugin-setting(h2)-3.png" width="80%" height="80%">
 
-(4) 생성된 AWS SNS Webhook을 확인하고 `Webhook URL`을 복사합니다.  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;복사된 URL은 [2. AWS SNS의 Topic과 Subscription 설정](./PersonalHealthDashboard.md/#2-aws-sns의-topic과-subscription-설정)에서 Subscrtion 타겟을 설정하는데 사용됩니다.
+(4) AWS SNS Webhook의 [이름]을 작성하고 [생성] 버튼을 클릭하여 웹훅을 생성합니다.  
 
 <img src="PersonalHealthDashboard-img/aws-sns-webhook-plugin-setting(h2)-4.png" width="80%" height="80%">
+
+(5) [웹훅 URL 복사하기] 버튼을 클릭하여 생성된 웹훅의 URL을 클립보드에 복사합니다.  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;복사된 URL은 [2. AWS SNS의 Topic과 Subscription 설정](./PersonalHealthDashboard.md/#2-aws-sns의-topic과-subscription-설정)에서 subscription 타겟을 설정하는데 사용됩니다.
+
+<img src="PersonalHealthDashboard-img/aws-sns-webhook-plugin-setting(h2)-5.png" width="80%" height="80%">
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;웹훅 URL은 [얼럿 매니저] > [서비스] > [웹훅] > [상세 정보] > [Webhook URL] 에서 나중에 다시 복사할 수 있습니다.
+
+<img src="PersonalHealthDashboard-img/aws-sns-webhook-plugin-setting(h2)-7.png" width="80%" height="80%">
+
+(6) 얼럿을 알림으로 받을 수 있도록 알림을 설정합니다.  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;또는 [다음에 진행] 버튼을 클릭하여 스킵한 후 나중에 설정할 수 있습니다.
+
+<img src="PersonalHealthDashboard-img/aws-sns-webhook-plugin-setting(h2)-6.png" width="80%" height="80%"> 
 
 <br>
 <br>
@@ -175,7 +188,7 @@ AWS EventBridge 설정 시 주의할 점은 PHD 이벤트를 받으려는 **각 
 
 (3-1) [이벤트 소스]는 [AWS 이벤트 또는 EventBridge 파트너 이벤트]를 선택합니다.    
 (3-2) [이벤트 패턴]에서 [이벤트 소스]는 `AWS 서비스` , [AWS 서비스]는 `Health`  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;그리고 [이벤트 유형]은 `Specific Health Abuse Events` 를 선택합니다.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;그리고 [이벤트 유형]은 `AWS Health Abuse Event` 를 선택합니다.
 
 <img src="PersonalHealthDashboard-img/aws-eventbridge-global-setting(h3)-4.png" width="80%" height="80%">
 
