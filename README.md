@@ -12,10 +12,11 @@
 
 **Webhook plugin for AWS SNS**
 
-> SpaceONE's [plugin-aws-sns-monitoring-webhook](https://github.com/spaceone-dev/plugin-aws-sns-mon-webhook) 
- is a tool that can integrate and manage events of various patterns from various AWS alert services.   
+> SpaceONE's [plugin-aws-sns-monitoring-webhook](https://github.com/spaceone-dev/plugin-aws-sns-mon-webhook)
+> is a tool that can integrate and manage events of various patterns from various AWS alert services.   
 > SpaceONE already supports various external monitoring ecosystems in the form of plug-ins   
-> (Prometheus, Grafana, Zabbix, etc), and SNS webhook is one of them, which more reliably supports events of AWS alert services.
+> (Prometheus, Grafana, Zabbix, etc), and SNS webhook is one of them, which more reliably supports events of AWS alert
+> services.
 
 Find us also at [Dockerhub](https://hub.docker.com/repository/docker/spaceone/plugin-aws-sns-mon-webhook)
 > Latest stable version : 1.2.1
@@ -27,66 +28,83 @@ Please contact us if you need any further information. (support@spaceone.dev)
 ## Supported Alert Services
 
 Currently, you can receive the following events using AWS SNS webhook.
+
 * AWS Cloudwatch
 * AWS Health
 
 If you need detailed AWS SNS settings to use the sns webhook.   
-Please refer to the [SpaceONE Documentations](https://spaceone.org/docs/guides/alert_manager/webhook_settings/aws_sns_webhook/).
+Please refer to
+the [SpaceONE Documentations](https://spaceone.org/docs/guides/alert_manager/webhook_settings/aws_sns_webhook/).
 
 ---
 
 ## Release note
+
+### Ver 1.2.7
+
+---
+
+Enhancement
+
+- add statusCode in the PHD event for auto-resolve alert.
 
 ### Ver 1.2.3
 
 ---
 
 Enhancement
-- add MetricName and Namespace field in additional_info of cloudwatch ([#1](https://github.com/cloudforet-io/plugin-aws-sns-mon-webhook/issues/1))
+
+- add MetricName and Namespace field in additional_info of
+  cloudwatch ([#1](https://github.com/cloudforet-io/plugin-aws-sns-mon-webhook/issues/1))
 
 Bugfix
-- fix title and rule field in event of cloudwatch ([#1](https://github.com/cloudforet-io/plugin-aws-sns-mon-webhook/issues/1))
 
+- fix title and rule field in event of
+  cloudwatch ([#1](https://github.com/cloudforet-io/plugin-aws-sns-mon-webhook/issues/1))
 
 ### Ver 1.2.2
 
 ---
 
 Enhancement
-- Apply regardless of primitive type about phd events ([#50](https://github.com/spaceone-dev/plugin-aws-sns-mon-webhook/issues/50))
-- change to receive paragraph-delimited scription ([#48](https://github.com/spaceone-dev/plugin-aws-sns-mon-webhook/issues/48))
+
+- Apply regardless of primitive type about phd
+  events ([#50](https://github.com/spaceone-dev/plugin-aws-sns-mon-webhook/issues/50))
+- change to receive paragraph-delimited
+  scription ([#48](https://github.com/spaceone-dev/plugin-aws-sns-mon-webhook/issues/48))
 
 ### Ver 1.2.1
 
 ---
 
 Enhancement
+
 - Add provider field and account field (#47)
 - Add affected entities in discription (#46)
 
 Test
+
 - Add test code about Event Service (#46)
-
-
-
 
 ### Ver 1.2
 
 ---
 
 Enhancement
+
 - Apply PersonalHealthDashboard Event (#39, #41)
 
 Refactoring
+
 - Modify affectedEntities type (#44)
 - Add account info in discription(#41)
-
 
 ### Ver 1.1
 
 ---
 
-Refactoring   
+Refactoring
+
 - Add remove_code_in_title method (#37)
 - Update get_namespace (#35)
 - Modify severity_flag (#27)
@@ -96,4 +114,5 @@ Refactoring
 ---
 
 Enhancement
+
 - Update for cloud_metrics for aws cloudwatch type (#29)
