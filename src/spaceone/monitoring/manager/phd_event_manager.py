@@ -280,7 +280,7 @@ class PersonalHealthDashboardManager(BaseManager):
 
     @staticmethod
     def _get_event_type(event_type: str) -> str:
-        if event_type == "close":
+        if event_type == "closed":
             return "RECOVERY"
         else:
             return "ALERT"
